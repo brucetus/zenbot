@@ -142,8 +142,7 @@ module.exports = function container(conf) {
 
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
-      var client = authedClient()
-      client.api('Balance', null, function(error, data) {
+
         var balance = {
           asset: '0',
           asset_hold: '0',
@@ -151,31 +150,14 @@ module.exports = function container(conf) {
           currency_hold: '0'
         }
 
-        if (error) {
-          if (error.message.match(recoverableErrors)) {
-            return retry('getBalance', args, error)
-          }
-          console.error(('\ngetBalance error:').red)
-          console.error(error)
-          return cb(error)
+        if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
+          balance.asset = 1
         }
 
-        if (data.error.length) {
-          return cb(data.error.join(','))
-        }
-
-        if (data.result[opts.currency]) {
-          balance.currency = n(data.result[opts.currency]).format('0.00000000')
-          balance.currency_hold = '0'
-        }
-
-        if (data.result[opts.asset]) {
-          balance.asset = n(data.result[opts.asset]).format('0.00000000')
-          balance.asset_hold = '0'
-        }
-
+        //balance.currency = getQuote(ask) ask price / conf.leverage_amount
+        balance.currency = 0
+        console.log(getQuote(opts, ask))
         cb(null, balance)
-      })
     },
 
     getQuote: function(opts, cb) {
