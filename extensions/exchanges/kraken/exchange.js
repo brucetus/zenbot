@@ -156,7 +156,11 @@ module.exports = function container(conf) {
 
         //balance.currency = getQuote(ask) ask price / conf.leverage_amount
         balance.currency = 0
-        console.log(getQuote(opts, ask))
+        getQuote(function (err, quote) {
+          if (err) return cb(err)
+          let ask = quote.ask
+          })
+        console.log(ask)
         cb(null, balance)
     },
 
