@@ -238,6 +238,9 @@ module.exports = function container(conf) {
         volume: opts.size,
         trading_agreement: conf.kraken.tosagree
       }
+      if (conf.leverage > 0) {
+        params.leverage = 2
+      }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
       }
