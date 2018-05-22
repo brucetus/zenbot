@@ -296,7 +296,7 @@ module.exports = function container(conf) {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
           price: opts.price,
-          size: opts.size,
+          size: so.leverage_amount,
           created_at: new Date().getTime(),
           filled_size: '0'
         }
