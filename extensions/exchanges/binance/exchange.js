@@ -265,17 +265,19 @@ module.exports = function container(conf) {
     trade: function(type, opts, cb) {
       var args = [].slice.call(arguments)
       var client = authedClient()
+      if (so.leverage_amount > 0) {
+        opts.size = so.leverage_amount
+      }
       var params = {
         pair: joinProductFormatted(opts.product_id),
         type: opts.side,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
-        volume: so.leverage_amount,
+        volume: opts.size,
         leverage: 0,
         trading_agreement: conf.kraken.tosagree
       }
       if (so.leverage > 0) {
         params.leverage = so.leverage
-        params.volume = so.leverage_amount
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
@@ -296,7 +298,7 @@ module.exports = function container(conf) {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
           price: opts.price,
-          size: so.leverage_amount,
+          size: opts.size,
           created_at: new Date().getTime(),
           filled_size: '0'
         }
