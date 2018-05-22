@@ -171,7 +171,7 @@ module.exports = function container(conf) {
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
       var client = authedClient()
-      if (conf.leverage == 0) {
+      if (so.leverage == 0) {
         client.api('Balance', null, function(error, data) {
           var balance = {
             asset: '0',
@@ -201,11 +201,11 @@ module.exports = function container(conf) {
           cb(null, balance)
         })
       }
-      else if (conf.leverage > 0) {
+      else if (so.leverage > 0) {
         var balance = {
           asset: '1',
           asset_hold: '0',
-          currency: '1',
+          currency: '100',
           currency_hold: '0'
         }
         cb(null, balance)
@@ -270,12 +270,13 @@ module.exports = function container(conf) {
         type: type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
+        leverage: 0,
         trading_agreement: conf.kraken.tosagree
       }
-      if (conf.leverage > 0) {
-        params.leverage = conf.leverage
+      if (so.leverage > 0) {
+        params.leverage = so.leverage
         if (params.type == 'buy') {
-          params.volume = conf.leverage_amount
+          params.volume = so.leverage_amount
         }
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
