@@ -166,8 +166,6 @@ module.exports = function container(conf) {
           //balance.currency = quote.ask / conf.leverage_amount
         }
       })
-
-      console.log(ask)
       cb(null, balance)
     },
 
