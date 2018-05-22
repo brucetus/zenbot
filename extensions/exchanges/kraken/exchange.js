@@ -153,9 +153,9 @@ module.exports = function container(conf) {
         currency_hold: '0'
       }
 
-      if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
+      //if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
         balance.asset = 1
-      }
+      //}
 
       this.getQuote( { product_id: pair },  function(err, quote) {
         if (err) {
