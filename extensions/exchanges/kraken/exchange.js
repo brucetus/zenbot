@@ -142,6 +142,7 @@ module.exports = function container(conf) {
 
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
+      var pair = joinProductFormatted(opts.product_id)
 
       var balance = {
         asset: '0',
@@ -154,7 +155,7 @@ module.exports = function container(conf) {
         balance.asset = 1
       }
 
-      this.getQuote( { product_id: joinProductFormatted(opts.product_id) },  function(err, quote) {
+      this.getQuote( { product_id: pair },  function(err, quote) {
         if (err) {
         console.log('[exchange quote][FAIL] ' + err)
         } else {
