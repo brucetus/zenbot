@@ -179,7 +179,6 @@ module.exports = function container(conf) {
           currency: '0',
           currency_hold: '0'
         }
-
         if (error) {
           if (error.message.match(recoverableErrors)) {
             return retry('getBalance', args, error)
@@ -188,21 +187,17 @@ module.exports = function container(conf) {
           console.error(error)
           return cb(error)
         }
-
         if (data.error.length) {
           return cb(data.error.join(','))
         }
-
         if (data.result[opts.currency]) {
           balance.currency = n(data.result[opts.currency]).format('0.00000000')
           balance.currency_hold = '0'
         }
-
         if (data.result[opts.asset]) {
           balance.asset = n(data.result[opts.asset]).format('0.00000000')
           balance.asset_hold = '0'
         }
-
         cb(null, balance)
       })
     }
@@ -214,7 +209,6 @@ module.exports = function container(conf) {
           currency: '0',
           currency_hold: '0'
         }
-
         if (error) {
           if (error.message.match(recoverableErrors)) {
             return retry('getBalance', args, error)
@@ -223,21 +217,20 @@ module.exports = function container(conf) {
           console.error(error)
           return cb(error)
         }
-
         if (data.error.length) {
           return cb(data.error.join(','))
         }
-
         if (data.result[opts.currency]) {
           balance.currency = n(data.result[opts.currency]).format('0.00000000')
           balance.currency_hold = '0'
         }
-
         if (data.result[opts.asset]) {
-          balance.asset = 1
+          balance.asset = n(data.result[opts.currency]).format('0.00000000')
           balance.asset_hold = '0'
         }
-
+        if (balance.asset == 0) {
+          balance.asset = 1
+        }
         cb(null, balance)
       })
     }
@@ -304,7 +297,10 @@ module.exports = function container(conf) {
         trading_agreement: conf.kraken.tosagree
       }
       if (conf.leverage > 0) {
-        params.leverage = 2
+        params.leverage = conf.leverage
+        if (params.type == 'sell') {
+          params.volume = conf.deposit
+        }
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
