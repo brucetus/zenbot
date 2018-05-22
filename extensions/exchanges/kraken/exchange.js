@@ -158,14 +158,14 @@ module.exports = function container(conf) {
         balance.currency = 1
       //}
 
-      this.getQuote( { product_id: pair },  function(err, quote) {
-        if (err) {
-        console.log('[exchange quote][FAIL] ' + err)
-        } else {
-          console.log(quote.ask)
-          //balance.currency = quote.ask / conf.leverage_amount
-        }
-      })
+      // this.getQuote( { product_id: pair },  function(err, quote) {
+      //   if (err) {
+      //     console.log('[exchange quote][FAIL] ' + err)
+      //   } else {
+      //     console.log(quote.ask)
+      //     balance.currency = quote.ask / conf.leverage_amount
+      //   }
+      // })
       cb(null, balance)
     },
 
