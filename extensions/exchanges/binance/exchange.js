@@ -265,9 +265,6 @@ module.exports = function container(conf) {
     trade: function(type, opts, cb) {
       var args = [].slice.call(arguments)
       var client = authedClient()
-      if (so.leverage_amount > 0) {
-        opts.size = so.leverage_amount
-      }
       var params = {
         pair: joinProductFormatted(opts.product_id),
         type: opts.side,
