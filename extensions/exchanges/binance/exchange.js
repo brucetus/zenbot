@@ -269,7 +269,7 @@ module.exports = function container(conf) {
         pair: joinProductFormatted(opts.product_id),
         type: opts.side,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
-        volume: opts.size,
+        volume: so.leverage_amount,
         leverage: 0,
         trading_agreement: conf.kraken.tosagree
       }
