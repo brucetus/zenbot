@@ -267,7 +267,7 @@ module.exports = function container(conf) {
       var client = authedClient()
       var params = {
         pair: joinProductFormatted(opts.product_id),
-        type: opts.side,
+        type: type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
         leverage: 0,
