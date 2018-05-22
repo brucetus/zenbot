@@ -1,9 +1,9 @@
 var KrakenClient = require('kraken-api'),
-  minimist = require('minimist'),
-  moment = require('moment'),
-  n = require('numbro'),
-  // eslint-disable-next-line no-unused-vars
-  colors = require('colors')
+minimist = require('minimist'),
+moment = require('moment'),
+n = require('numbro'),
+// eslint-disable-next-line no-unused-vars
+colors = require('colors')
 
 module.exports = function container(conf) {
   var s = {
@@ -143,25 +143,27 @@ module.exports = function container(conf) {
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
 
-        var balance = {
-          asset: '0',
-          asset_hold: '0',
-          currency: '0',
-          currency_hold: '0'
-        }
+      var balance = {
+        asset: '0',
+        asset_hold: '0',
+        currency: '0',
+        currency_hold: '0'
+      }
 
-        if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
-          balance.asset = 1
-        }
+      if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
+        balance.asset = 1
+      }
 
-        //balance.currency = getQuote(ask) ask price / conf.leverage_amount
-        balance.currency = 0
-        this.getQuote(opts.product_id, function (err, quote) {
-          if (err) return cb(err)
-          let ask = quote.ask
-          })
-        console.log(ask)
-        cb(null, balance)
+      this.getQuote( { product_id: joinProductFormatted(opts.product_id) },  function(err, quote) {
+        if (err) {
+        console.log('[exchange quote][FAIL] ' + err)
+        } else {
+          balance.currency = quote.ask / conf.leverage_amount
+        }
+      })
+
+      console.log(ask)
+      cb(null, balance)
     },
 
     getQuote: function(opts, cb) {
