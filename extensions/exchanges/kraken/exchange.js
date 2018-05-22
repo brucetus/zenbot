@@ -142,9 +142,9 @@ module.exports = function container(conf) {
 
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
-      if (!opts) return opts
-      if (!opts.product_id) return opts.product_id
-      // var pair = joinProductFormatted(opts.product_id)
+      if(!opts) return cb('no options provided',null)
+      if (!opts.product_id) return cb('no products requested',null)
+      var pair = joinProductFormatted(opts.product_id)
 
       var balance = {
         asset: '0',
@@ -153,19 +153,18 @@ module.exports = function container(conf) {
         currency_hold: '0'
       }
 
-      //if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
+      if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
         balance.asset = 1
-        balance.currency = 1
-      //}
+      }
 
-      // this.getQuote( { product_id: pair },  function(err, quote) {
-      //   if (err) {
-      //     console.log('[exchange quote][FAIL] ' + err)
-      //   } else {
-      //     console.log(quote.ask)
-      //     balance.currency = quote.ask / conf.leverage_amount
-      //   }
-      // })
+      this.getQuote( { product_id: pair },  function(err, quote) {
+        if (err) {
+          console.log('[exchange quote][FAIL] ' + err)
+        } else {
+          console.log(quote.ask)
+          balance.currency = quote.ask / conf.leverage_amount
+        }
+      })
       cb(null, balance)
     },
 
