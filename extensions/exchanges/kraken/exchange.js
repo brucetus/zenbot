@@ -140,32 +140,107 @@ module.exports = function container(conf) {
       })
     },
 
+    // getBalance: function(opts, cb) {
+    //   var args = [].slice.call(arguments)
+    //   if(!opts) return cb('no options provided',null)
+    //   if (!opts.product_id) return cb('no products requested',null)
+    //   var pair = joinProductFormatted(opts.product_id)
+    //
+    //   var balance = {
+    //     asset: '0',
+    //     asset_hold: '0',
+    //     currency: '0',
+    //     currency_hold: '0'
+    //   }
+    //
+    //   if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
+    //     balance.asset = 1
+    //   }
+    //
+    //   this.getQuote( { product_id: pair },  function(err, quote) {
+    //     if (err) {
+    //       console.log('[exchange quote][FAIL] ' + err)
+    //     } else {
+    //       console.log(quote.ask)
+    //       balance.currency = quote.ask / conf.leverage_amount
+    //     }
+    //   })
+    //   cb(null, balance)
+    // },
+
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
-      if(!opts) return cb('no options provided',null)
-      if (!opts.product_id) return cb('no products requested',null)
-      var pair = joinProductFormatted(opts.product_id)
-
-      var balance = {
-        asset: '0',
-        asset_hold: '0',
-        currency: '0',
-        currency_hold: '0'
-      }
-
-      if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
-        balance.asset = 1
-      }
-
-      this.getQuote( { product_id: pair },  function(err, quote) {
-        if (err) {
-          console.log('[exchange quote][FAIL] ' + err)
-        } else {
-          console.log(quote.ask)
-          balance.currency = quote.ask / conf.leverage_amount
+      var client = authedClient()
+      if (conf.leverage == 0) {
+      client.api('Balance', null, function(error, data) {
+        var balance = {
+          asset: '0',
+          asset_hold: '0',
+          currency: '0',
+          currency_hold: '0'
         }
+
+        if (error) {
+          if (error.message.match(recoverableErrors)) {
+            return retry('getBalance', args, error)
+          }
+          console.error(('\ngetBalance error:').red)
+          console.error(error)
+          return cb(error)
+        }
+
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+
+        if (data.result[opts.currency]) {
+          balance.currency = n(data.result[opts.currency]).format('0.00000000')
+          balance.currency_hold = '0'
+        }
+
+        if (data.result[opts.asset]) {
+          balance.asset = n(data.result[opts.asset]).format('0.00000000')
+          balance.asset_hold = '0'
+        }
+
+        cb(null, balance)
       })
-      cb(null, balance)
+    }
+    else if (conf.leverage > 0) {
+      client.api('OpenPositions', null, function(error, data) {
+        var balance = {
+          asset: '0',
+          asset_hold: '0',
+          currency: '0',
+          currency_hold: '0'
+        }
+
+        if (error) {
+          if (error.message.match(recoverableErrors)) {
+            return retry('getBalance', args, error)
+          }
+          console.error(('\ngetBalance error:').red)
+          console.error(error)
+          return cb(error)
+        }
+
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+
+        if (data.result[opts.currency]) {
+          balance.currency = n(data.result[opts.currency]).format('0.00000000')
+          balance.currency_hold = '0'
+        }
+
+        if (data.result[opts.asset]) {
+          balance.asset = 1
+          balance.asset_hold = '0'
+        }
+
+        cb(null, balance)
+      })
+    }
     },
 
     getQuote: function(opts, cb) {
