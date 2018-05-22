@@ -155,13 +155,15 @@ module.exports = function container(conf) {
 
       //if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
         balance.asset = 1
+        balance.currency = 1
       //}
 
       this.getQuote( { product_id: pair },  function(err, quote) {
         if (err) {
         console.log('[exchange quote][FAIL] ' + err)
         } else {
-          balance.currency = quote.ask / conf.leverage_amount
+          console.log(quote.ask)
+          //balance.currency = quote.ask / conf.leverage_amount
         }
       })
 
