@@ -267,7 +267,7 @@ module.exports = function container(conf) {
       var client = authedClient()
       var params = {
         pair: joinProductFormatted(opts.product_id),
-        type: type,
+        type: opts.side,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
         leverage: 0,
@@ -275,9 +275,6 @@ module.exports = function container(conf) {
       }
       if (so.leverage > 0) {
         params.leverage = so.leverage
-        if (params.type == 'buy') {
-          params.volume = so.leverage_amount
-        }
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
