@@ -142,7 +142,7 @@ module.exports = function container(conf) {
 
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
-      if (opts == null) return
+      if (!opts) return
       var pair = joinProductFormatted(opts.product_id)
 
       var balance = {
