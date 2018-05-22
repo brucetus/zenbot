@@ -172,68 +172,44 @@ module.exports = function container(conf) {
       var args = [].slice.call(arguments)
       var client = authedClient()
       if (conf.leverage == 0) {
-      client.api('Balance', null, function(error, data) {
+        client.api('Balance', null, function(error, data) {
+          var balance = {
+            asset: '0',
+            asset_hold: '0',
+            currency: '0',
+            currency_hold: '0'
+          }
+          if (error) {
+            if (error.message.match(recoverableErrors)) {
+              return retry('getBalance', args, error)
+            }
+            console.error(('\ngetBalance error:').red)
+            console.error(error)
+            return cb(error)
+          }
+          if (data.error.length) {
+            return cb(data.error.join(','))
+          }
+          if (data.result[opts.currency]) {
+            balance.currency = n(data.result[opts.currency]).format('0.00000000')
+            balance.currency_hold = '0'
+          }
+          if (data.result[opts.asset]) {
+            balance.asset = n(data.result[opts.asset]).format('0.00000000')
+            balance.asset_hold = '0'
+          }
+          cb(null, balance)
+        })
+      }
+      else if (conf.leverage > 0) {
         var balance = {
-          asset: '0',
+          asset: '1',
           asset_hold: '0',
-          currency: '0',
+          currency: '1',
           currency_hold: '0'
         }
-        if (error) {
-          if (error.message.match(recoverableErrors)) {
-            return retry('getBalance', args, error)
-          }
-          console.error(('\ngetBalance error:').red)
-          console.error(error)
-          return cb(error)
-        }
-        if (data.error.length) {
-          return cb(data.error.join(','))
-        }
-        if (data.result[opts.currency]) {
-          balance.currency = n(data.result[opts.currency]).format('0.00000000')
-          balance.currency_hold = '0'
-        }
-        if (data.result[opts.asset]) {
-          balance.asset = n(data.result[opts.asset]).format('0.00000000')
-          balance.asset_hold = '0'
-        }
         cb(null, balance)
-      })
-    }
-    else if (conf.leverage > 0) {
-      client.api('OpenPositions', null, function(error, data) {
-        var balance = {
-          asset: '0',
-          asset_hold: '0',
-          currency: '0',
-          currency_hold: '0'
-        }
-        if (error) {
-          if (error.message.match(recoverableErrors)) {
-            return retry('getBalance', args, error)
-          }
-          console.error(('\ngetBalance error:').red)
-          console.error(error)
-          return cb(error)
-        }
-        if (data.error.length) {
-          return cb(data.error.join(','))
-        }
-        if (data.result[opts.currency]) {
-          balance.currency = n(data.result[opts.currency]).format('0.00000000')
-          balance.currency_hold = '0'
-        }
-        if (data.result[opts.asset]) {
-          balance.asset = n(data.result[opts.currency]).format('0.00000000')
-          balance.asset_hold = '0'
-        }
-        if (balance.asset == 0) {
-          balance.asset = 1
-        }
-        cb(null, balance)
-      })
-    }
+      }
     },
 
     getQuote: function(opts, cb) {
@@ -298,8 +274,8 @@ module.exports = function container(conf) {
       }
       if (conf.leverage > 0) {
         params.leverage = conf.leverage
-        if (params.type == 'sell') {
-          params.volume = conf.deposit
+        if (params.type == 'buy') {
+          params.volume = conf.leverage_amount
         }
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
