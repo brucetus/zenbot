@@ -5,23 +5,7 @@
 
 # Zenbot [![Build/Test Status](https://travis-ci.org/DeviaVir/zenbot.svg?branch=master)](https://travis-ci.org/DeviaVir/zenbot) [![Greenkeeper badge](https://badges.greenkeeper.io/DeviaVir/zenbot.svg)](https://greenkeeper.io/)
 
-## Current Status (UPDATE MAY 13th '18)
 
-Hey guys!
-
-It's been so long. I'm back, and I have a brand new bot in development. It's code-named **Bot18**, and it's kicking ass so far.
-
-I wrote a big Medium post detailing what's going on. I'm so excited to explore a brand new engine and the new strategies it makes possible.
-
-I will be developing solely on **Bot18** going forward and probably open-sourcing it soon once it stabilizes. Zenbot can live on, but I won't be updating it anymore. It's in the good hands of @DeviaVir who is the best maintainer I could ask for 👍)
-
-Medium post: https://medium.com/@carlos8f_11468/introducing-bot18-the-new-crypto-trading-bot-to-supersede-zenbot-and-unleash-the-zalgo-da8464b41e53
-
-Issue: https://github.com/DeviaVir/zenbot/issues/1589
-
-![bot18_icon](https://user-images.githubusercontent.com/106763/39973448-ead81bfc-56d4-11e8-9868-16b6d736fc97.png)
-
-~Carlos
 
 ## Questions
 Please ask (programming) questions related to zenbot on stackoverflow. The tag is [zenbot](https://stackoverflow.com/questions/tagged/zenbot).
