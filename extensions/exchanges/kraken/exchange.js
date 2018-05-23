@@ -140,34 +140,6 @@ module.exports = function container(conf) {
       })
     },
 
-    // getBalance: function(opts, cb) {
-    //   var args = [].slice.call(arguments)
-    //   if(!opts) return cb('no options provided',null)
-    //   if (!opts.product_id) return cb('no products requested',null)
-    //   var pair = joinProductFormatted(opts.product_id)
-    //
-    //   var balance = {
-    //     asset: '0',
-    //     asset_hold: '0',
-    //     currency: '0',
-    //     currency_hold: '0'
-    //   }
-    //
-    //   if (balance.asset == 0 && conf.leverage > 0 && conf.leverage_amount > 0) {
-    //     balance.asset = 1
-    //   }
-    //
-    //   this.getQuote( { product_id: pair },  function(err, quote) {
-    //     if (err) {
-    //       console.log('[exchange quote][FAIL] ' + err)
-    //     } else {
-    //       console.log(quote.ask)
-    //       balance.currency = quote.ask / conf.leverage_amount
-    //     }
-    //   })
-    //   cb(null, balance)
-    // },
-
     getBalance: function(opts, cb) {
       var args = [].slice.call(arguments)
       var client = authedClient()
@@ -203,7 +175,7 @@ module.exports = function container(conf) {
       }
       else if (so.leverage > 0) {
         var balance = {
-          asset: '1',
+          asset: '0',
           asset_hold: '0',
           currency: '100',
           currency_hold: '0'
