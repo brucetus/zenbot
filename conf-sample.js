@@ -176,7 +176,7 @@ c.min_prev_trades = 0
 // use leverage on Kraken
 c.leverage = 0
 // volume of margin position
-c.leverage_amount
+c.leverage_amount = 0
 
 // Notifiers:
 c.notifiers = {}
