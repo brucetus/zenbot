@@ -175,7 +175,7 @@ module.exports = function container(conf) {
       }
       else if (so.leverage > 0) {
         var balance = {
-          asset: '0',
+          asset: '100',
           asset_hold: '0',
           currency: '100',
           currency_hold: '0'
