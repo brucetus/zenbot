@@ -248,6 +248,9 @@ module.exports = function container(conf) {
       if (so.leverage > 0) {
         params.leverage = so.leverage
       }
+      if (so.leverage == 1) {
+        delete params.leverage
+      }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
       }
