@@ -242,14 +242,10 @@ module.exports = function container(conf) {
         type: type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
-        leverage: 0,
         trading_agreement: conf.kraken.tosagree
       }
       if (so.leverage > 0) {
         params.leverage = so.leverage
-      }
-      if (so.leverage == 1) {
-        delete params.leverage
       }
       if (opts.post_only === true && params.ordertype === 'limit') {
         params.oflags = 'post'
