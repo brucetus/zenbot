@@ -1,5 +1,12 @@
 #!/usr/bin/env node
-let Robinhood = require('robinhood')
+var conf = require("../../conf.js")
+
+var credentials = {
+    username: conf.robinhood.key,
+    password: conf.robinhood.secret
+}
+
+var Robinhood = require('robinhood')(credentials, function(){
 
   Robinhood.instruments(function(err, response, body){
     if (err) {
@@ -28,4 +35,3 @@ let Robinhood = require('robinhood')
       process.exit()
     }
   })
-})
