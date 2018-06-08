@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var conf = require("../../conf.js")
+var conf = require("../../../conf.js")
 
 var credentials = {
     username: conf.robinhood.key,
@@ -15,16 +15,16 @@ var Robinhood = require('robinhood')(credentials, function(){
       var products = []
 
       markets.forEach(function (market) {
-
+        let product = market.results
         products.push({
-          id: market.symbol,
-          asset: market.symbol,
+          id: product.symbol,
+          asset: product.symbol,
           currency: 'USD',
           min_size: 0,
           max_size: 99999999,
           increment: market.min_tick_size,
           asset_increment: 0,
-          label: market.symbol + '/' + 'USD'
+          label: product.symbol + '/' + 'USD'
         })
 
       })
@@ -35,3 +35,4 @@ var Robinhood = require('robinhood')(credentials, function(){
       process.exit()
     }
   })
+})
