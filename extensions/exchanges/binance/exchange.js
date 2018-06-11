@@ -87,7 +87,6 @@ module.exports = function bittrex (conf) {
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
             lastVal = parseFloat(trade[4])
-            if (debug > 3) console.log("[TOHLCV]["+ moment(trade[0]).format('MM/DD HH:mm')+ "]: " + JSON.stringify(trade))
             if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
             return {
               trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
