@@ -95,7 +95,6 @@ module.exports = function bittrex (conf) {
               time: trade[0],
               size: parseFloat(trade[5]),
               price: parseFloat(trade[4]),
-              selector: 'binance' + opts.product_id,
               side: buySell
             }
           })
