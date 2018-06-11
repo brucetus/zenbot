@@ -61,6 +61,7 @@ module.exports = function bittrex (conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
+      var client = publicClient()
       var args = {}
       if (opts.from) {
         args.startTime = opts.from
@@ -107,7 +108,6 @@ module.exports = function bittrex (conf) {
         })
       }
       else {
-        var client = publicClient()
         client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
           var trades = result.map(function (trade) {
             return {
