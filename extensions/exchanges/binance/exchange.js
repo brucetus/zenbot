@@ -61,6 +61,8 @@ module.exports = function bittrex (conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
+      , trades = []
+      , maxTime = 0
       var client = publicClient()
       var args = {}
       if (opts.from) {
