@@ -49,9 +49,9 @@ module.exports = function container(conf) {
   function retry(method, args, error) {
     let timeout, errorMsg
     if (error.message.match(/API:Rate limit exceeded/)) {
-      timeout = 10000
+      timeout = 30000
     } else {
-      timeout = 150
+      timeout = 5000
     }
 
     // silence common timeout errors
