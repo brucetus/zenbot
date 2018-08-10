@@ -51,7 +51,7 @@ module.exports = function container(conf) {
     if (error.message.match(/API:Rate limit exceeded/)) {
       timeout = 30000
     } else {
-      timeout = 5000
+      timeout = 15000
     }
 
     // silence common timeout errors
