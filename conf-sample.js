@@ -128,9 +128,9 @@ c.profit_stop_pct = 1
 // avoid trading at a slippage above this pct
 c.max_slippage_pct = 5
 // buy with this % of currency balance (WARNING : sim won't work properly if you set this value to 100)
-c.buy_pct = 99
+c.buy_pct = 100
 // sell with this % of asset balance (WARNING : sim won't work properly if you set this value to 100)
-c.sell_pct = 99
+c.sell_pct = 100
 // ms to adjust non-filled order after
 c.order_adjust_time = 5000
 // avoid selling at a loss below this pct set to 0 to ensure selling at a higher price...
@@ -157,7 +157,7 @@ c.use_fee_asset = false
 // default # days for backfill and sim commands
 c.days = 14
 // defaults to a high number of lookback periods
-c.keep_lookback_periods = 50000
+c.keep_lookback_periods = 130
 // ms to poll new trades at
 c.poll_trades = 30000
 // amount of currency to start simulations with
