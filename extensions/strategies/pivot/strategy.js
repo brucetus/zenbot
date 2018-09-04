@@ -7,7 +7,7 @@ module.exports = {
   description: 'Pivot Reversal Strategy',
 
   getOptions: function () {
-    this.option('period_length', 'period length', String, '30m')
+    this.option('period_length', 'period length', String, '4h')
     this.option('min_periods', 'min periods', Number, 50)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell','sell', Boolean, false)
