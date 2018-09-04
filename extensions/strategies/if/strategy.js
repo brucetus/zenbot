@@ -1,8 +1,8 @@
-var z = require('zero-fill'),
-n = require('numbro'),
-highest = require('../../../lib/highest'),
-lowest = require('../../../lib/lowest'),
-dupOrderWorkAround = require('../../../lib/duporderworkaround')
+var z = require('zero-fill')
+, n = require('numbro')
+, highest = require('../../../lib/highest')
+, lowest = require('../../../lib/lowest')
+, dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
   name: 'if',
