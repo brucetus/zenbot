@@ -1,8 +1,6 @@
-var z = require('zero-fill'),
-n = require('numbro'),
-highest = require('../../../lib/highest'),
-lowest = require('../../../lib/lowest'),
-dupOrderWorkAround = require('../../../lib/duporderworkaround')
+var z = require('zero-fill')
+, n = require('numbro')
+, dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
   name: 'pivot',
@@ -11,27 +9,33 @@ module.exports = {
   getOptions: function () {
     this.option('period_length', 'period length', String, '30m')
     this.option('min_periods', 'min periods', Number, 50)
+    this.option('buy', 'buy', Boolean, false)
+    this.option('sell','sell', Boolean, false)
     this.option('up', 'up', Number, 1)
     this.option('down','down', Number, 1)
   },
 
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
-      if (s.period.high / s.pivothigh > s.options.up) {
-        if (s.trend !== 'up') {
-          s.acted_on_trend = false
+      if (s.options.buy !== false) {
+        if (s.period.close / s.pivothigh > s.options.up) {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'up'
+          if (dupOrderWorkAround.checkForPriorBuy(s))
+          s.signal = !s.acted_on_trend ? 'buy' : null
         }
-        s.trend = 'up'
-        if (dupOrderWorkAround.checkForPriorBuy(s))
-        s.signal = !s.acted_on_trend ? 'buy' : null
       }
-      if (s.period.low / s.pivotlow < s.options.down) {
-        if (s.trend !== 'down') {
-          s.acted_on_trend = false
+      if (s.options.sell !== false) {
+        if (s.period.close / s.pivotlow < s.options.down) {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'down'
+          if (dupOrderWorkAround.checkForPriorSell(s))
+          s.signal = !s.acted_on_trend ? 'sell' : null
         }
-        s.trend = 'down'
-        if (dupOrderWorkAround.checkForPriorSell(s))
-        s.signal = !s.acted_on_trend ? 'sell' : null
       }
     }
   },
