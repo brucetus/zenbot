@@ -18,7 +18,7 @@ module.exports = {
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
       if (s.options.buy !== false) {
-        if (s.period.close / s.pivothigh > s.options.up) {
+        if (s.period.high / s.pivothigh > s.options.up) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
           }
@@ -28,7 +28,7 @@ module.exports = {
         }
       }
       if (s.options.sell !== false) {
-        if (s.period.close / s.pivotlow < s.options.down) {
+        if (s.period.low / s.pivotlow < s.options.down) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
           }
