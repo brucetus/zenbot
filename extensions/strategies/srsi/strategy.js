@@ -46,6 +46,7 @@ module.exports = {
           if (s.period.srsi_K <= s.srsi_high - s.options.srsi_recover) {
             s.trend = 'short'
             s.signal = 'sell'
+            s.srsi_low = s.period.srsi_K
           }
         }
       }
