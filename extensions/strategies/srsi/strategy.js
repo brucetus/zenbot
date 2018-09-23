@@ -7,8 +7,8 @@ module.exports = {
   description: 'Creates pyramid orders using SRSI.',
 
   getOptions: function () {
-    this.option('period_length', 'period length, same as --period', String, '2h')
-    this.option('min_periods', 'min. number of history periods', Number, 52)
+    this.option('period_length', 'period length', String, '2h')
+    this.option('min_periods', 'min. number of history periods', Number, 14)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell','sell', Boolean, false)
     this.option('srsi_periods', 'number of srsi periods', 14)
@@ -21,7 +21,7 @@ module.exports = {
 
   calculate: function (s) {
     srsi(s, 'srsi', s.options.srsi_periods, s.options.srsi_k, s.options.srsi_d)
-    if ( typeof s.period.srsi_K === 'number' && typeof s.period.srsi_K_D === 'number') {
+    if (typeof s.period.srsi_K === 'number') {
       if (s.period.srsi_K <= s.options.oversold_srsi) {
         s.srsi_low = s.period.srsi_K
         s.trend = 'oversold'
