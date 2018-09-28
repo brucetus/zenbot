@@ -17,7 +17,7 @@ new ccxt.kraken().fetch_markets().then(function(markets) {
     products.push({
       id: market.id,
       asset: market.base,
-      currency: market.quote,
+      currency: 'Z' + market.quote,
       min_size: min_size,
       max_size: '100000',
       increment: '0.01',
