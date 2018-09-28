@@ -5,21 +5,6 @@ new ccxt.kraken().fetch_markets().then(function(markets) {
   var products = []
 
   markets.forEach(function (market) {
-    var currStepSize = market.info.filters[0].tickSize
-    for (i = currStepSize.length - 1; i > 0; i--) {
-      if (currStepSize[i] === '0')
-        currStepSize = currStepSize.slice(0, i)
-      else
-        break;
-    }
-
-    var assetStepSize = market.info.filters[1].stepSize
-    for (i = assetStepSize.length - 1; i > 0; i--) {
-      if (assetStepSize[i] === '0')
-        assetStepSize = assetStepSize.slice(0, i)
-      else
-        break
-    }
 
     var min_size    = Number(market.info.filters[1].minQty);
     var minNotional = Number(market.info.filters[2].minNotional);
@@ -35,8 +20,7 @@ new ccxt.kraken().fetch_markets().then(function(markets) {
       currency: market.quote,
       min_size: min_size,
       max_size: '100000',
-      increment: currStepSize,
-      asset_increment: assetStepSize,
+      increment: '0.01',
       label: market.base + '/' + market.quote
     })
   })
