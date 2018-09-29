@@ -12,8 +12,6 @@ module.exports = function kraken (conf) {
   var public_client, authed_client
   let firstRun = true
   let allowGetMarketCall = true
-  var recoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|API:Invalid nonce|between Cloudflare and the origin web server|The web server reported a gateway time-out|The web server reported a bad gateway|525: SSL handshake failed|Service:Unavailable|api.kraken.com \| 522:)/)
-  var silencedRecoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT)/)
 
   function publicClient () {
     if (!public_client) public_client = new ccxt.kraken({ 'apiKey': '', 'secret': '' })
@@ -36,15 +34,10 @@ module.exports = function kraken (conf) {
   }
 
   function retry (method, args, err) {
-    let errorMsg
-    if (error.message.match(/API:Rate limit exceeded/)) {
-      timeout = 30000
-    } else {
-      timeout = 15000
-    }
-    if (so.debug || !error.message.match(silencedRecoverableErrors)) {
-      errorMsg = error
-      console.warn(('\nKraken API warning - unable to call ' + method + ' (' + errorMsg + '), retrying in ' + timeout / 1000 + 's').yellow)
+    if (method !== 'getTrades') {
+      console.error(('\nKraken API is down! unable to call ' + method + ', retrying in 30s').red)
+      if (err) console.error(err)
+      console.error(args.slice(0, -1))
     }
     setTimeout(function () {
       exchange[method].apply(exchange, args)
