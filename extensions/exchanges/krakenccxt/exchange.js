@@ -63,45 +63,13 @@ module.exports = function kraken (conf) {
       , maxTime = 0
       var client = publicClient()
       var args = {}
-      if (opts.from) args.startTime = opts.from
-      if (opts.to) args.endTime = opts.to
-      if (args.startTime && !args.endTime) {
-        // add 12 hours
-        args.endTime = parseInt(args.startTime, 10) + 3600000
-      }
-      else if (args.endTime && !args.startTime) {
-        // subtract 12 hours
-        args.startTime = parseInt(args.endTime, 10) - 3600000
+      if (opts.from) {
+        args.since = Number(opts.from) * 1000000
       }
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
-      if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
-          var lastVal = 0
-          trades = result.map(function(trade) {
-            let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
-            lastVal = parseFloat(trade[4])
-            if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
-            return {
-              trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
-              time: trade[0],
-              size: parseFloat(trade[5]),
-              price: parseFloat(trade[4]),
-              side: buySell
-            }
-          })
-          cb(null, trades)
-        }).catch(function(error) {
-          firstRun = false
-          allowGetMarketCall = false
-          setTimeout(()=>{allowGetMarketCall = true}, 5000)
-          console.error('[OHLCV] An error occurred', error)
-          return retry('getTrades', func_args, error)
-        })
-      }
-      else {
         client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
           var trades = result.map(function (trade) {
             return {
