@@ -6,7 +6,7 @@ new ccxt.kraken().fetch_markets().then(function(markets) {
 
   markets.forEach(function (market) {
 
-    var min_size    = Number(market.info.filters[1].minQty);
+    var min_size    = Number(market.info.filters[1].minAmount);
     var minNotional = Number(market.info.filters[2].minNotional);
     // Orders must be strictly greater than minNotional
     if (min_size <= minNotional) {
