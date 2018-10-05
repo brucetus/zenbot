@@ -70,22 +70,21 @@ module.exports = function kraken (conf) {
         cb(null, [])
         return null
       }
-        client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
-          var trades = result.map(function (trade) {
-            return {
-              trade_id: trade.id,
-              time: trade.timestamp,
-              size: parseFloat(trade.amount),
-              price: parseFloat(trade.price),
-              side: trade.side
-            }
-          })
-          cb(null, trades)
-        }).catch(function (error) {
-          console.error('An error occurred', error)
-          return retry('getTrades', func_args)
+      client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
+        var trades = result.map(function (trade) {
+          return {
+            trade_id: trade.id,
+            time: trade.timestamp,
+            size: parseFloat(trade.amount),
+            price: parseFloat(trade.price),
+            side: trade.side
+          }
         })
-      }
+        cb(null, trades)
+      }).catch(function (error) {
+        console.error('An error occurred', error)
+        return retry('getTrades', func_args)
+      })
     },
 
     getBalance: function (opts, cb) {
