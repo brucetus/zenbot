@@ -10,6 +10,8 @@ module.exports = function kraken (conf) {
   }
   var so = s.options
   var public_client, authed_client
+  let firstRun = true
+  let allowGetMarketCall = true
 
   function publicClient () {
     if (!public_client) public_client = new ccxt.kraken({ 'apiKey': '', 'secret': '' })
@@ -61,24 +63,53 @@ module.exports = function kraken (conf) {
       , maxTime = 0
       var client = publicClient()
       var args = {}
-      if (opts.from) {
-        args.since = Number(opts.from) * 1000000
+      if (opts.from) args.since = Number(opts.from) * 1000000
+      if (opts.to) args.endTime = opts.to * 100000
+      if (allowGetMarketCall != true) {
+        cb(null, [])
+        return null
       }
-      client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
-        var trades = result.map(function (trade) {
-          return {
-            trade_id: trade.id,
-            time: trade.timestamp,
-            size: parseFloat(trade.amount),
-            price: parseFloat(trade.price),
-            side: trade.side
-          }
+      if (firstRun) {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
+          var lastVal = 0
+          trades = result.map(function(trade) {
+            let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
+            lastVal = parseFloat(trade[4])
+            if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
+            return {
+              trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
+              time: trade[0],
+              size: parseFloat(trade[5]),
+              price: parseFloat(trade[4]),
+              side: buySell
+            }
+          })
+          cb(null, trades)
+        }).catch(function(error) {
+          firstRun = false
+          allowGetMarketCall = false
+          setTimeout(()=>{allowGetMarketCall = true}, 5000)
+          console.error('[OHLCV] An error occurred', error)
+          return retry('getTrades', func_args, error)
         })
-        cb(null, trades)
-      }).catch(function (error) {
-        console.error('An error occurred', error)
-        return retry('getTrades', func_args)
-      })
+      }
+      else {
+        client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
+          var trades = result.map(function (trade) {
+            return {
+              trade_id: trade.id,
+              time: trade.timestamp,
+              size: parseFloat(trade.amount),
+              price: parseFloat(trade.price),
+              side: trade.side
+            }
+          })
+          cb(null, trades)
+        }).catch(function (error) {
+          console.error('An error occurred', error)
+          return retry('getTrades', func_args)
+        })
+      }
     },
 
     getBalance: function (opts, cb) {
