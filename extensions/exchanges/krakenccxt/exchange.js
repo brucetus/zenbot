@@ -164,11 +164,12 @@ module.exports = function kraken (conf) {
       var params = {
         type: (opts.order_type === 'taker' ? 'market' : 'limit'),
         side: 'buy',
-        volume: this.roundToNearest(opts.size, opts.product_id),
+        volume: opts.size,
         trading_agreement: conf.kraken.tosagree
       }
       if (so.leverage > 1) {
         params.leverage = so.leverage
+        params.volume = so.leverage_amount
       }
       if (opts.order_type === 'taker') {
         delete opts.price
