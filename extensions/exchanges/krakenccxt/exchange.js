@@ -163,7 +163,7 @@ module.exports = function kraken (conf) {
       var client = authedClient()
       var params = {
         pair: joinProduct(opts.product_id),
-        type: type,
+        type: opts.type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
         trading_agreement: conf.kraken.tosagree
@@ -225,7 +225,7 @@ module.exports = function kraken (conf) {
       var client = authedClient()
       var params = {
         pair: joinProduct(opts.product_id),
-        type: type,
+        type: opts.type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
         trading_agreement: conf.kraken.tosagree
