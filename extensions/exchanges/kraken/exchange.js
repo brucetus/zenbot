@@ -341,32 +341,27 @@ module.exports = function container(conf) {
           console.log('\nfunction: QueryOrders')
           console.log(orderData)
         }
-
         if (!orderData) {
           return cb('Order not found')
         }
-
         if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
           order.status = 'rejected'
           order.reject_reason = 'post only'
           order.done_at = new Date().getTime()
-          order.filled_size = '0.00000000'
+          order.filled_size = n(orderData.vol_exec).format('0.00000000')
           return cb(null, order)
         }
-
-        if (orderData.status === 'closed' || (orderData.status === 'canceled' && orderData.reason === 'User canceled')) {
+        if (orderData.status !== 'open' && orderData.status !== 'canceled') {
           order.status = 'done'
           order.done_at = new Date().getTime()
           order.filled_size = n(orderData.vol_exec).format('0.00000000')
           order.price = n(orderData.price).format('0.00000000')
           return cb(null, order)
         }
-
         cb(null, order)
       })
     },
 
-    // return the property used for range querying.
     getCursor: function(trade) {
       return (trade.time || trade)
     }
