@@ -162,7 +162,6 @@ module.exports = function kraken (conf) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
       var params = {
-        pair: joinProduct(opts.product_id),
         type: opts.type,
         ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
@@ -182,7 +181,7 @@ module.exports = function kraken (conf) {
         console.log(params)
       }
       var order = {}
-      client.createOrder(params).then(result => {
+      client.createOrder(joinProduct(opts.product_id), params).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
