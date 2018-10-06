@@ -62,8 +62,9 @@ module.exports = function kraken (conf) {
       , trades = []
       , maxTime = 0
       var client = publicClient()
-      var args = {}
-      if (opts.from) args.since = Number(opts.from) * 1000000
+      var args = {
+      since: Number(opts.from)
+      }
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
