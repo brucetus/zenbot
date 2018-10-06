@@ -109,8 +109,8 @@ module.exports = function kraken (conf) {
           console.error('An error occurred', error)
           return retry('getTrades', func_args)
         })
-      }
-    },
+      //}
+      },
 
     getBalance: function (opts, cb) {
       var func_args = [].slice.call(arguments)
