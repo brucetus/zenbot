@@ -10,8 +10,6 @@ module.exports = function kraken (conf) {
   }
   var so = s.options
   var public_client, authed_client
-  let firstRun = true
-  let allowGetMarketCall = true
 
   function publicClient () {
     if (!public_client) public_client = new ccxt.kraken({ 'apiKey': '', 'secret': '' })
@@ -65,10 +63,6 @@ module.exports = function kraken (conf) {
       var args = {}
       if (opts.from) {
         args.since = Number(opts.from) * 1000000
-      }
-      if (allowGetMarketCall != true) {
-        cb(null, [])
-        return null
       }
       client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
         var trades = result.map(function (trade) {
@@ -164,22 +158,18 @@ module.exports = function kraken (conf) {
       var params = {
         type: (opts.order_type === 'taker' ? 'market' : 'limit'),
         side: 'buy',
-        volume: opts.size,
+        amount: opts.size,
+        price: opts.price,
         trading_agreement: conf.kraken.tosagree
       }
       if (so.leverage > 1) {
         params.leverage = so.leverage
-        params.volume = so.leverage_amount
+        params.amount = so.leverage_amount
       }
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
         opts.type = 'market'
-      } else {
-        params.timeInForce = 'GTC'
-      }
-      if ('price' in opts) {
-        params.price = opts.price
       }
       if (so.debug) {
         console.log('\nFunction: trade')
