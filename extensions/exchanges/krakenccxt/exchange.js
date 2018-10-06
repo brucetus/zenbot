@@ -162,8 +162,7 @@ module.exports = function kraken (conf) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
       var params = {
-        type: opts.type,
-        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
+        type: (opts.order_type === 'taker' ? 'market' : 'limit'),
         volume: opts.size,
         trading_agreement: conf.kraken.tosagree
       }
