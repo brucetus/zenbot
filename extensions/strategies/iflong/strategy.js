@@ -11,8 +11,8 @@ module.exports = {
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
     this.option('min_periods', 'min periods', Number, 120)
-    this.option('up', 'up', Number, 1)
-    this.option('down','down', Number, 1)
+    this.option('up', 'up', Number, 1.01)
+    this.option('down','down', Number, 0.99)
     this.option('tenkan', 'Tenkan (conversion) line', Number, 20)
     this.option('kijun','Kijun (base) line', Number, 60)
     this.option('senkou_b','Senkou (leading) span B', Number, 120)
