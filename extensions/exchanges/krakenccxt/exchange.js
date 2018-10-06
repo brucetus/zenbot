@@ -1,6 +1,7 @@
 const ccxt = require('ccxt')
 , path = require('path')
 , minimist = require('minimist')
+, moment = require('moment')
 , colors = require('colors')
 , _ = require('lodash')
 
