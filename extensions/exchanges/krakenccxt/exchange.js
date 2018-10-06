@@ -176,10 +176,10 @@ module.exports = function kraken (conf) {
       opts.side = 'buy'
       delete opts.order_type
       if (so.leverage > 1) {
-        args.leverage = so.leverage
+        opts.leverage = so.leverage
       }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, opts).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
@@ -235,10 +235,10 @@ module.exports = function kraken (conf) {
       opts.side = 'sell'
       delete opts.order_type
       if (so.leverage > 1) {
-        args.leverage = so.leverage
+        opts.leverage = so.leverage
       }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, opts).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
