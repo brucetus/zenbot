@@ -172,7 +172,6 @@ module.exports = function kraken (conf) {
       if (so.leverage > 1) {
         args.leverage = so.leverage
       }
-      client.verbose = true;  // ←-- add this and post your verbose request/response without your keys here
       var order = {}
       client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
@@ -196,11 +195,6 @@ module.exports = function kraken (conf) {
         cb(null, order)
       }).catch(function (error) {
         console.error('An error occurred', error)
-
-        // decide if this error is allowed for a retry:
-        // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
-        // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
-
         if (error.message.match(new RegExp(/-1013|MIN_NOTIONAL|-2010/))) {
           return cb(null, {
             status: 'rejected',
@@ -232,7 +226,6 @@ module.exports = function kraken (conf) {
       if (so.leverage > 1) {
         args.leverage = so.leverage
       }
-      client.verbose = true;  // ←-- add this and post your verbose request/response without your keys here
       var order = {}
       client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
@@ -256,11 +249,6 @@ module.exports = function kraken (conf) {
         cb(null, order)
       }).catch(function (error) {
         console.error('An error occurred', error)
-
-        // decide if this error is allowed for a retry:
-        // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
-        // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
-
         if (error.message.match(new RegExp(/-1013|MIN_NOTIONAL|-2010/))) {
           return cb(null, {
             status: 'rejected',
