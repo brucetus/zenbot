@@ -163,7 +163,7 @@ module.exports = function kraken (conf) {
       var client = authedClient()
       var params = {
         type: (opts.order_type === 'taker' ? 'market' : 'limit'),
-        side: 'buy'
+        side: 'buy',
         volume: this.roundToNearest(opts.size, opts),
         trading_agreement: conf.kraken.tosagree
       }
