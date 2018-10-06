@@ -64,13 +64,12 @@ module.exports = function kraken (conf) {
       var client = publicClient()
       var args = {}
       if (opts.from) args.since = Number(opts.from) * 1000000
-      if (opts.to) args.endTime = opts.to * 100000
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
