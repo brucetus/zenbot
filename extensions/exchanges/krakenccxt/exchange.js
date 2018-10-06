@@ -165,7 +165,7 @@ module.exports = function kraken (conf) {
         opts.post_only = true
       }
       opts.type = 'limit'
-       var args = {}
+      var args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
@@ -173,9 +173,13 @@ module.exports = function kraken (conf) {
       } else {
         args.timeInForce = 'GTC'
       }
+      opts.side = 'buy'
       delete opts.order_type
+      if (so.leverage > 1) {
+        args.leverage = so.leverage
+      }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { leverage: args.leverage }).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
@@ -191,8 +195,7 @@ module.exports = function kraken (conf) {
           post_only: !!opts.post_only,
           created_at: new Date().getTime(),
           filled_size: '0',
-          ordertype: opts.order_type,
-          leverage: args.leverage
+          ordertype: opts.order_type
         }
         orders['~' + result.id] = order
         cb(null, order)
@@ -231,8 +234,11 @@ module.exports = function kraken (conf) {
       }
       opts.side = 'sell'
       delete opts.order_type
+      if (so.leverage > 1) {
+        args.leverage = so.leverage
+      }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { leverage: args.leverage }).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
@@ -248,8 +254,7 @@ module.exports = function kraken (conf) {
           post_only: !!opts.post_only,
           created_at: new Date().getTime(),
           filled_size: '0',
-          ordertype: opts.order_type,
-          leverage: args.leverage
+          ordertype: opts.order_type
         }
         orders['~' + result.id] = order
         cb(null, order)
