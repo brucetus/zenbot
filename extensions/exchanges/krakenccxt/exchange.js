@@ -166,7 +166,7 @@ module.exports = function kraken (conf) {
       }
       opts.type = 'limit'
        var args = {
-        leverage = so.leverage
+        leverage : so.leverage
       }
       if (opts.order_type === 'taker') {
         delete opts.price
