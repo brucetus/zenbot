@@ -166,11 +166,7 @@ module.exports = function kraken (conf) {
       }
       opts.type = 'limit'
        var args = {
-        type: opts.type,
-        side: 'buy',
-        amount: this.roundToNearest(opts.size, opts),
-        price: opts.price,
-        trading_agreement: conf.kraken.tosagree
+        leverage = so.leverage
       }
       if (opts.order_type === 'taker') {
         delete opts.price
@@ -180,12 +176,8 @@ module.exports = function kraken (conf) {
         args.timeInForce = 'GTC'
       }
       delete opts.order_type
-      if (so.leverage > 1) {
-        args.leverage = so.leverage
-      }
-      
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), args).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
@@ -201,7 +193,8 @@ module.exports = function kraken (conf) {
           post_only: !!opts.post_only,
           created_at: new Date().getTime(),
           filled_size: '0',
-          ordertype: opts.order_type
+          ordertype: opts.order_type,
+          leverage: args.leverage
         }
         orders['~' + result.id] = order
         cb(null, order)
@@ -230,7 +223,9 @@ module.exports = function kraken (conf) {
         opts.post_only = true
       }
       opts.type = 'limit'
-      var args = {}
+      var args = {
+        leverage: so.leverage
+      }
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
@@ -240,9 +235,6 @@ module.exports = function kraken (conf) {
       }
       opts.side = 'sell'
       delete opts.order_type
-      if (so.leverage > 1) {
-        args.leverage = so.leverage
-      }
       var order = {}
       client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
         if (result && result.message === 'Insufficient funds') {
@@ -260,7 +252,8 @@ module.exports = function kraken (conf) {
           post_only: !!opts.post_only,
           created_at: new Date().getTime(),
           filled_size: '0',
-          ordertype: opts.order_type
+          ordertype: opts.order_type,
+          leverage: args.leverage
         }
         orders['~' + result.id] = order
         cb(null, order)
