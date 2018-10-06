@@ -161,23 +161,28 @@ module.exports = function kraken (conf) {
     buy: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
-      if (typeof opts.post_only === 'undefined') {
-        opts.post_only = true
+      var params = {
+        pair: joinProduct(opts.product_id),
+        type: type,
+        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
+        volume: opts.size,
+        trading_agreement: conf.kraken.tosagree
       }
-      opts.type = 'limit'
-      var args = {}
-      if (opts.order_type === 'taker') {
-        delete opts.price
-        delete opts.post_only
-        opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
+      if (so.leverage > 1) {
+        params.leverage = so.leverage
       }
-      opts.side = 'buy'
-      delete opts.order_type
-      args.leverage = so.leverage
+      if (opts.post_only === true && params.ordertype === 'limit') {
+        params.oflags = 'post'
+      }
+      if ('price' in opts) {
+        params.price = opts.price
+      }
+      if (so.debug) {
+        console.log('\nFunction: trade')
+        console.log(params)
+      }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { leverage: args.leverage }).then(result => {
+      client.createOrder(params).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
@@ -218,23 +223,28 @@ module.exports = function kraken (conf) {
     sell: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
-      if (typeof opts.post_only === 'undefined') {
-        opts.post_only = true
+      var params = {
+        pair: joinProduct(opts.product_id),
+        type: type,
+        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
+        volume: opts.size,
+        trading_agreement: conf.kraken.tosagree
       }
-      opts.type = 'limit'
-      var args = {}
-      if (opts.order_type === 'taker') {
-        delete opts.price
-        delete opts.post_only
-        opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
+      if (so.leverage > 1) {
+        params.leverage = so.leverage
       }
-      opts.side = 'sell'
-      delete opts.order_type
-      args.leverage = so.leverage
+      if (opts.post_only === true && params.ordertype === 'limit') {
+        params.oflags = 'post'
+      }
+      if ('price' in opts) {
+        params.price = opts.price
+      }
+      if (so.debug) {
+        console.log('\nFunction: trade')
+        console.log(params)
+      }
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { leverage: args.leverage }).then(result => {
+      client.createOrder(params).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
