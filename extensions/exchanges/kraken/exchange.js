@@ -18,7 +18,7 @@ module.exports = function container(conf) {
 
   function publicClient() {
     if (!public_client) {
-      public_client = new KrakenClient()
+      public_client = new KrakenClient('', '', { timeout: 30000 })
     }
     return public_client
   }
@@ -28,7 +28,7 @@ module.exports = function container(conf) {
       if (!conf.kraken || !conf.kraken.key || conf.kraken.key === 'YOUR-API-KEY') {
         throw new Error('please configure your Kraken credentials in conf.js')
       }
-      authed_client = new KrakenClient(conf.kraken.key, conf.kraken.secret)
+      authed_client = new KrakenClient(conf.kraken.key, conf.kraken.secret, { timeout: 30000 })
     }
     return authed_client
   }
@@ -108,7 +108,6 @@ module.exports = function container(conf) {
       if (opts.from) {
         args.since = Number(opts.from) * 1000000
       }
-
       client.api('Trades', args, function(error, data) {
         if (error && error.message.match(recoverableErrors)) {
           return retry('getTrades', func_args, error)
@@ -121,7 +120,6 @@ module.exports = function container(conf) {
         if (data.error.length) {
           return cb(data.error.join(','))
         }
-
         var trades = []
         Object.keys(data.result[args.pair]).forEach(function(i) {
           var trade = data.result[args.pair][i]
@@ -290,16 +288,17 @@ module.exports = function container(conf) {
             order.reject_reason = 'balance'
             return cb(null, order)
           } else if (error.message.length) {
-            console.error(('\nUnhandeld AddOrder error:').red)
+            console.error(('\nUnhandeled AddOrder error:').red)
             console.error(error)
             order.status = 'rejected'
             order.reject_reason = error.message
             return cb(null, order)
           } else if (data.error.length) {
-            console.error(('\nUnhandeld AddOrder error:').red)
+            console.error(('\nUnhandeled AddOrder error:').red)
             console.error(data.error)
             order.status = 'rejected'
             order.reject_reason = data.error.join(',')
+            return cb(null, order)
           }
         }
 
