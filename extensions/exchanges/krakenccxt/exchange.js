@@ -174,8 +174,10 @@ module.exports = function kraken (conf) {
         console.log('\nFunction: trade')
         console.log(params)
       }
+      await client.loadMarkets ();
+      client.verbose = true;  // ←-- add this and post your verbose request/response without your keys here
       var order = {}
-      client.createOrder(joinProduct(opts.product_id), params).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
