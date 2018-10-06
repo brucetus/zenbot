@@ -142,7 +142,7 @@ module.exports = function kraken (conf) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
       client.cancelOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
-        if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb()
+        if (body && (body.status === 'closed' || body.status === 'canceled')) return cb()
         cb(null)
       }, function(err){
         if (err) {
@@ -275,7 +275,7 @@ module.exports = function kraken (conf) {
         if (body.status !== 'open' && body.status !== 'canceled') {
           order.status = 'done'
           order.done_at = new Date().getTime()
-          order.filled_size = parseFloat(body.amount) - parseFloat(body.remaining)
+          order.filled_size = parseFloat(body.vol_exec)
           return cb(null, order)
         }
         cb(null, order)
