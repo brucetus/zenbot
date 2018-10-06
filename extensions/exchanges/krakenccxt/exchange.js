@@ -165,9 +165,7 @@ module.exports = function kraken (conf) {
         opts.post_only = true
       }
       opts.type = 'limit'
-       var args = {
-        leverage : so.leverage
-      }
+       var args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
@@ -223,9 +221,7 @@ module.exports = function kraken (conf) {
         opts.post_only = true
       }
       opts.type = 'limit'
-      var args = {
-        leverage: so.leverage
-      }
+      var args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
