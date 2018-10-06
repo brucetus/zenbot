@@ -191,176 +191,175 @@ module.exports = function container(conf) {
       }, function(error, data) {
         if (error) {
           return retry('getQuote', args, error)
-        }
-        console.error(('\ngetQuote error:').red)
-        console.error(error)
-        return cb(error)
-      }
-      if (data.error.length) {
-        return cb(data.error.join(','))
-      }
-      cb(null, {
-        bid: data.result[pair].b[0],
-        ask: data.result[pair].a[0],
-      })
-    })
-  },
-
-  cancelOrder: function(opts, cb) {
-    var args = [].slice.call(arguments)
-    var client = authedClient()
-    client.api('CancelOrder', {
-      txid: opts.order_id
-    }, function(error, data) {
-      if (error) {
-        if (error.message.match(recoverableErrors)) {
-          return retry('cancelOrder', args, error)
-        }
-        console.error(('\ncancelOrder error:').red)
-        console.error(error)
-        return cb(error)
-      }
-      if (data.error.length) {
-        return cb(data.error.join(','))
-      }
-      if (so.debug) {
-        console.log('\nFunction: cancelOrder')
-        console.log(data)
-      }
-      cb(error)
-    })
-  },
-
-  trade: function(type, opts, cb) {
-    var args = [].slice.call(arguments)
-    var client = authedClient()
-    var params = {
-      pair: joinProductFormatted(opts.product_id),
-      type: type,
-      ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
-      volume: opts.size,
-      trading_agreement: conf.kraken.tosagree
-    }
-    if (so.leverage > 1) {
-      params.leverage = so.leverage
-    }
-    if (opts.post_only === true && params.ordertype === 'limit') {
-      params.oflags = 'post'
-    }
-    if ('price' in opts) {
-      params.price = opts.price
-    }
-    if (so.debug) {
-      console.log('\nFunction: trade')
-      console.log(params)
-    }
-    client.api('AddOrder', params, function(error, data) {
-      if (error && error.message.match(recoverableErrors)) {
-        return retry('trade', args, error)
-      }
-
-      var order = {
-        id: data && data.result ? data.result.txid[0] : null,
-        status: 'open',
-        price: opts.price,
-        size: opts.size,
-        created_at: new Date().getTime(),
-        filled_size: '0'
-      }
-
-      if (opts.order_type === 'maker') {
-        order.post_only = !!opts.post_only
-      }
-
-      if (so.debug) {
-        console.log('\nData:')
-        console.log(data)
-        console.log('\nOrder:')
-        console.log(order)
-        console.log('\nError:')
-        console.log(error)
-      }
-
-      if (error) {
-        if (error.message.match(/Order:Insufficient funds$/)) {
-          order.status = 'rejected'
-          order.reject_reason = 'balance'
-          return cb(null, order)
-        } else if (error.message.length) {
-          console.error(('\nUnhandeled AddOrder error:').red)
+          console.error(('\ngetQuote error:').red)
           console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        cb(null, {
+          bid: data.result[pair].b[0],
+          ask: data.result[pair].a[0],
+        })
+      })
+    },
+
+    cancelOrder: function(opts, cb) {
+      var args = [].slice.call(arguments)
+      var client = authedClient()
+      client.api('CancelOrder', {
+        txid: opts.order_id
+      }, function(error, data) {
+        if (error) {
+          if (error.message.match(recoverableErrors)) {
+            return retry('cancelOrder', args, error)
+          }
+          console.error(('\ncancelOrder error:').red)
+          console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        if (so.debug) {
+          console.log('\nFunction: cancelOrder')
+          console.log(data)
+        }
+        cb(error)
+      })
+    },
+
+    trade: function(type, opts, cb) {
+      var args = [].slice.call(arguments)
+      var client = authedClient()
+      var params = {
+        pair: joinProductFormatted(opts.product_id),
+        type: type,
+        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
+        volume: opts.size,
+        trading_agreement: conf.kraken.tosagree
+      }
+      if (so.leverage > 1) {
+        params.leverage = so.leverage
+      }
+      if (opts.post_only === true && params.ordertype === 'limit') {
+        params.oflags = 'post'
+      }
+      if ('price' in opts) {
+        params.price = opts.price
+      }
+      if (so.debug) {
+        console.log('\nFunction: trade')
+        console.log(params)
+      }
+      client.api('AddOrder', params, function(error, data) {
+        if (error && error.message.match(recoverableErrors)) {
+          return retry('trade', args, error)
+        }
+
+        var order = {
+          id: data && data.result ? data.result.txid[0] : null,
+          status: 'open',
+          price: opts.price,
+          size: opts.size,
+          created_at: new Date().getTime(),
+          filled_size: '0'
+        }
+
+        if (opts.order_type === 'maker') {
+          order.post_only = !!opts.post_only
+        }
+
+        if (so.debug) {
+          console.log('\nData:')
+          console.log(data)
+          console.log('\nOrder:')
+          console.log(order)
+          console.log('\nError:')
+          console.log(error)
+        }
+
+        if (error) {
+          if (error.message.match(/Order:Insufficient funds$/)) {
+            order.status = 'rejected'
+            order.reject_reason = 'balance'
+            return cb(null, order)
+          } else if (error.message.length) {
+            console.error(('\nUnhandeled AddOrder error:').red)
+            console.error(error)
+            order.status = 'rejected'
+            order.reject_reason = error.message
+            return cb(null, order)
+          } else if (data.error.length) {
+            console.error(('\nUnhandeled AddOrder error:').red)
+            console.error(data.error)
+            order.status = 'rejected'
+            order.reject_reason = data.error.join(',')
+            return cb(null, order)
+          }
+        }
+
+        orders['~' + data.result.txid[0]] = order
+        cb(null, order)
+      })
+    },
+
+    buy: function(opts, cb) {
+      exchange.trade('buy', opts, cb)
+    },
+
+    sell: function(opts, cb) {
+      exchange.trade('sell', opts, cb)
+    },
+
+    getOrder: function(opts, cb) {
+      var args = [].slice.call(arguments)
+      var order = orders['~' + opts.order_id]
+      if (!order) return cb(new Error('order not found in cache'))
+      var client = authedClient()
+      var params = {
+        txid: opts.order_id
+      }
+      client.api('QueryOrders', params, function(error, data) {
+        if (error) {
+          return retry('getOrder', args, error)
+          console.error(('\ngetOrder error:').red)
+          console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        var orderData = data.result[params.txid]
+        if (so.debug) {
+          console.log('\nfunction: QueryOrders')
+          console.log(orderData)
+        }
+        if (!orderData) {
+          return cb('Order not found')
+        }
+        if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
           order.status = 'rejected'
-          order.reject_reason = error.message
-          return cb(null, order)
-        } else if (data.error.length) {
-          console.error(('\nUnhandeled AddOrder error:').red)
-          console.error(data.error)
-          order.status = 'rejected'
-          order.reject_reason = data.error.join(',')
+          order.reject_reason = 'post only'
+          order.done_at = new Date().getTime()
+          order.filled_size = n(orderData.vol_exec).format('0.00000000')
           return cb(null, order)
         }
-      }
+        if (orderData.status !== 'open' && orderData.status !== 'canceled') {
+          order.status = 'done'
+          order.done_at = new Date().getTime()
+          order.filled_size = n(orderData.vol_exec).format('0.00000000')
+          order.price = n(orderData.price).format('0.00000000')
+          return cb(null, order)
+        }
+        cb(null, order)
+      })
+    },
 
-      orders['~' + data.result.txid[0]] = order
-      cb(null, order)
-    })
-  },
-
-  buy: function(opts, cb) {
-    exchange.trade('buy', opts, cb)
-  },
-
-  sell: function(opts, cb) {
-    exchange.trade('sell', opts, cb)
-  },
-
-  getOrder: function(opts, cb) {
-    var args = [].slice.call(arguments)
-    var order = orders['~' + opts.order_id]
-    if (!order) return cb(new Error('order not found in cache'))
-    var client = authedClient()
-    var params = {
-      txid: opts.order_id
+    getCursor: function(trade) {
+      return (trade.time || trade)
     }
-    client.api('QueryOrders', params, function(error, data) {
-      if (error) {
-        return retry('getOrder', args, error)
-        console.error(('\ngetOrder error:').red)
-        console.error(error)
-        return cb(error)
-      }
-      if (data.error.length) {
-        return cb(data.error.join(','))
-      }
-      var orderData = data.result[params.txid]
-      if (so.debug) {
-        console.log('\nfunction: QueryOrders')
-        console.log(orderData)
-      }
-      if (!orderData) {
-        return cb('Order not found')
-      }
-      if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
-        order.status = 'rejected'
-        order.reject_reason = 'post only'
-        order.done_at = new Date().getTime()
-        order.filled_size = n(orderData.vol_exec).format('0.00000000')
-        return cb(null, order)
-      }
-      if (orderData.status !== 'open' && orderData.status !== 'canceled') {
-        order.status = 'done'
-        order.done_at = new Date().getTime()
-        order.filled_size = n(orderData.vol_exec).format('0.00000000')
-        order.price = n(orderData.price).format('0.00000000')
-        return cb(null, order)
-      }
-      cb(null, order)
-    })
-  },
-
-  getCursor: function(trade) {
-    return (trade.time || trade)
   }
-}
-return exchange
+  return exchange
 }
