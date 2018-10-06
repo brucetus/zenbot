@@ -165,15 +165,13 @@ module.exports = function kraken (conf) {
         opts.post_only = true
       }
       opts.type = 'limit'
-       var args = {
+      var args = {
         leverage : so.leverage
       }
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
         opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
       }
       delete opts.order_type
       var order = {}
@@ -230,8 +228,6 @@ module.exports = function kraken (conf) {
         delete opts.price
         delete opts.post_only
         opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
       }
       opts.side = 'sell'
       delete opts.order_type
