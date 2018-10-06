@@ -155,24 +155,22 @@ module.exports = function kraken (conf) {
     buy: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
-      var params = {
-        type: (opts.order_type === 'taker' ? 'market' : 'limit'),
-        side: 'buy',
-        amount: this.roundToNearest(opts.size, opts),
-        price: opts.price,
-        trading_agreement: conf.kraken.tosagree
+      if (typeof opts.post_only === 'undefined') {
+        opts.post_only = true
       }
-      if (so.leverage > 1) {
-        params.leverage = so.leverage
-      }
+      opts.type = 'limit'
+      var args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
         opts.type = 'market'
+      } else {
+        args.timeInForce = 'GTC'
       }
-      if (so.debug) {
-        console.log('\nFunction: trade')
-        console.log(params)
+      opts.side = 'buy'
+      delete opts.order_type
+      if (so.leverage > 1) {
+        args.leverage = so.leverage
       }
       client.verbose = true;  // ←-- add this and post your verbose request/response without your keys here
       var order = {}
