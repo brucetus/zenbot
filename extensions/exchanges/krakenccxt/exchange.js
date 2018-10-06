@@ -215,28 +215,26 @@ module.exports = function kraken (conf) {
     sell: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
-      var params = {
-        pair: joinProduct(opts.product_id),
-        type: opts.type,
-        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
-        volume: opts.size,
-        trading_agreement: conf.kraken.tosagree
+      if (typeof opts.post_only === 'undefined') {
+        opts.post_only = true
       }
+      opts.type = 'limit'
+      var args = {}
+      if (opts.order_type === 'taker') {
+        delete opts.price
+        delete opts.post_only
+        opts.type = 'market'
+      } else {
+        args.timeInForce = 'GTC'
+      }
+      opts.side = 'sell'
+      delete opts.order_type
       if (so.leverage > 1) {
-        params.leverage = so.leverage
+        args.leverage = so.leverage
       }
-      if (opts.post_only === true && params.ordertype === 'limit') {
-        params.oflags = 'post'
-      }
-      if ('price' in opts) {
-        params.price = opts.price
-      }
-      if (so.debug) {
-        console.log('\nFunction: trade')
-        console.log(params)
-      }
+      client.verbose = true;  // ←-- add this and post your verbose request/response without your keys here
       var order = {}
-      client.createOrder(params).then(result => {
+      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, { 'leverage': args.leverage }).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
             status: 'rejected',
