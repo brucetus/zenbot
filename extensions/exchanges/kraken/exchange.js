@@ -326,9 +326,7 @@ module.exports = function container(conf) {
       }
       client.api('QueryOrders', params, function(error, data) {
         if (error) {
-          if (error.message.match(recoverableErrors)) {
-            return retry('getOrder', args, error)
-          }
+          return retry('getOrder', args, error)
           console.error(('\ngetOrder error:').red)
           console.error(error)
           return cb(error)
