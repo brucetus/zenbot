@@ -110,6 +110,7 @@ module.exports = function container(conf) {
       client.api('Trades', args, function(error, data) {
         return retry('getTrades', func_args, error)
         if (error) {
+          return retry('getTrades', func_args, error)
           console.error(('\nTrades error:').red)
           console.error(error)
           return cb(null, [])
