@@ -1,9 +1,8 @@
-var KrakenClient = require('kraken-api'),
-minimist = require('minimist'),
-moment = require('moment'),
-n = require('numbro'),
-// eslint-disable-next-line no-unused-vars
-colors = require('colors')
+var KrakenClient = require('kraken-api')
+, minimist = require('minimist')
+, moment = require('moment')
+, n = require('numbro')
+, colors = require('colors')
 
 module.exports = function container(conf) {
   var s = {
@@ -109,9 +108,7 @@ module.exports = function container(conf) {
         args.since = Number(opts.from) * 1000000
       }
       client.api('Trades', args, function(error, data) {
-        if (error && error.message.match(recoverableErrors)) {
-          return retry('getTrades', func_args, error)
-        }
+        return retry('getTrades', func_args, error)
         if (error) {
           console.error(('\nTrades error:').red)
           console.error(error)
@@ -150,9 +147,7 @@ module.exports = function container(conf) {
             currency_hold: '0'
           }
           if (error) {
-            if (error.message.match(recoverableErrors)) {
-              return retry('getBalance', args, error)
-            }
+            return retry('getBalance', args, error)
             console.error(('\ngetBalance error:').red)
             console.error(error)
             return cb(error)
@@ -212,9 +207,7 @@ module.exports = function container(conf) {
         txid: opts.order_id
       }, function(error, data) {
         if (error) {
-          if (error.message.match(recoverableErrors)) {
-            return retry('cancelOrder', args, error)
-          }
+          return retry('cancelOrder', args, error)
           console.error(('\ncancelOrder error:').red)
           console.error(error)
           return cb(error)
@@ -254,10 +247,7 @@ module.exports = function container(conf) {
         console.log(params)
       }
       client.api('AddOrder', params, function(error, data) {
-        if (error && error.message.match(recoverableErrors)) {
-          return retry('trade', args, error)
-        }
-
+        return retry('trade', args, error)
         var order = {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
@@ -266,11 +256,9 @@ module.exports = function container(conf) {
           created_at: new Date().getTime(),
           filled_size: '0'
         }
-
         if (opts.order_type === 'maker') {
           order.post_only = !!opts.post_only
         }
-
         if (so.debug) {
           console.log('\nData:')
           console.log(data)
@@ -279,7 +267,6 @@ module.exports = function container(conf) {
           console.log('\nError:')
           console.log(error)
         }
-
         if (error) {
           if (error.message.match(/Order:Insufficient funds$/)) {
             order.status = 'rejected'
@@ -299,7 +286,6 @@ module.exports = function container(conf) {
             return cb(null, order)
           }
         }
-
         orders['~' + data.result.txid[0]] = order
         cb(null, order)
       })
