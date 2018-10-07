@@ -108,7 +108,6 @@ module.exports = function container(conf) {
         args.since = Number(opts.from) * 1000000
       }
       client.api('Trades', args, function(error, data) {
-        return retry('getTrades', func_args, error)
         if (error) {
           return retry('getTrades', func_args, error)
           console.error(('\nTrades error:').red)
