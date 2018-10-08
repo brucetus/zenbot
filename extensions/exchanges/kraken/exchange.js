@@ -329,10 +329,10 @@ module.exports = function container(conf) {
           order.status = 'rejected'
           order.reject_reason = 'post only'
           order.done_at = new Date().getTime()
-          order.filled_size = n(orderData.vol_exec).format('0.00000000')
+          order.filled_size = '0.00000000'
           return cb(null, order)
         }
-        if (orderData.status !== 'open' && orderData.status !== 'canceled') {
+        if (orderData.status === 'closed' || (orderData.status === 'canceled' && orderData.reason === 'User canceled')) {
           order.status = 'done'
           order.done_at = new Date().getTime()
           order.filled_size = n(orderData.vol_exec).format('0.00000000')
