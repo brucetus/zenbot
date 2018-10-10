@@ -309,7 +309,9 @@ module.exports = function container(conf) {
       }
       client.api('QueryOrders', params, function(error, data) {
         if (error) {
-          return retry('getOrder', args, error)
+          if (error.message.match(recoverableErrors)) {
+            return retry('getOrder', args, error)
+          }
           console.error(('\ngetOrder error:').red)
           console.error(error)
           return cb(error)
@@ -322,9 +324,11 @@ module.exports = function container(conf) {
           console.log('\nfunction: QueryOrders')
           console.log(orderData)
         }
+
         if (!orderData) {
           return cb('Order not found')
         }
+
         if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
           order.status = 'rejected'
           order.reject_reason = 'post only'
@@ -332,6 +336,7 @@ module.exports = function container(conf) {
           order.filled_size = '0.00000000'
           return cb(null, order)
         }
+
         if (orderData.status === 'closed' || (orderData.status === 'canceled' && orderData.reason === 'User canceled')) {
           order.status = 'done'
           order.done_at = new Date().getTime()
@@ -339,6 +344,7 @@ module.exports = function container(conf) {
           order.price = n(orderData.price).format('0.00000000')
           return cb(null, order)
         }
+
         cb(null, order)
       })
     },
