@@ -258,7 +258,10 @@ module.exports = function container(conf) {
         console.log(params)
       }
       client.api('AddOrder', params, function(error, data) {
-        return retry('trade', args, error)
+        if (error && error.message.match(recoverableErrors)) {
+          return retry('trade', args, error)
+        }
+
         var order = {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
@@ -323,7 +326,9 @@ module.exports = function container(conf) {
       }
       client.api('QueryOrders', params, function(error, data) {
         if (error) {
-          return retry('getOrder', args, error)
+          if (error.message.match(recoverableErrors)) {
+            return retry('getOrder', args, error)
+          }
           console.error(('\ngetOrder error:').red)
           console.error(error)
           return cb(error)
