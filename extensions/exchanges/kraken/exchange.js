@@ -1,8 +1,9 @@
-var KrakenClient = require('kraken-api')
-, minimist = require('minimist')
-, moment = require('moment')
-, n = require('numbro')
-, colors = require('colors')
+var KrakenClient = require('kraken-api'),
+minimist = require('minimist'),
+moment = require('moment'),
+n = require('numbro'),
+// eslint-disable-next-line no-unused-vars
+colors = require('colors')
 
 module.exports = function container(conf) {
   var s = {
@@ -17,7 +18,7 @@ module.exports = function container(conf) {
 
   function publicClient() {
     if (!public_client) {
-      public_client = new KrakenClient('', '', { timeout: 30000 })
+      public_client = new KrakenClient()
     }
     return public_client
   }
@@ -27,7 +28,7 @@ module.exports = function container(conf) {
       if (!conf.kraken || !conf.kraken.key || conf.kraken.key === 'YOUR-API-KEY') {
         throw new Error('please configure your Kraken credentials in conf.js')
       }
-      authed_client = new KrakenClient(conf.kraken.key, conf.kraken.secret, { timeout: 30000 })
+      authed_client = new KrakenClient(conf.kraken.key, conf.kraken.secret)
     }
     return authed_client
   }
@@ -107,9 +108,12 @@ module.exports = function container(conf) {
       if (opts.from) {
         args.since = Number(opts.from) * 1000000
       }
+
       client.api('Trades', args, function(error, data) {
-        if (error) {
+        if (error && error.message.match(recoverableErrors)) {
           return retry('getTrades', func_args, error)
+        }
+        if (error) {
           console.error(('\nTrades error:').red)
           console.error(error)
           return cb(null, [])
@@ -117,6 +121,7 @@ module.exports = function container(conf) {
         if (data.error.length) {
           return cb(data.error.join(','))
         }
+
         var trades = []
         Object.keys(data.result[args.pair]).forEach(function(i) {
           var trade = data.result[args.pair][i]
@@ -147,7 +152,9 @@ module.exports = function container(conf) {
             currency_hold: '0'
           }
           if (error) {
-            return retry('getBalance', args, error)
+            if (error.message.match(recoverableErrors)) {
+              return retry('getBalance', args, error)
+            }
             console.error(('\ngetBalance error:').red)
             console.error(error)
             return cb(error)
@@ -185,7 +192,9 @@ module.exports = function container(conf) {
         pair: pair
       }, function(error, data) {
         if (error) {
-          return retry('getQuote', args, error)
+          if (error.message.match(recoverableErrors)) {
+            return retry('getQuote', args, error)
+          }
           console.error(('\ngetQuote error:').red)
           console.error(error)
           return cb(error)
@@ -207,7 +216,9 @@ module.exports = function container(conf) {
         txid: opts.order_id
       }, function(error, data) {
         if (error) {
-          return retry('cancelOrder', args, error)
+          if (error.message.match(recoverableErrors)) {
+            return retry('cancelOrder', args, error)
+          }
           console.error(('\ncancelOrder error:').red)
           console.error(error)
           return cb(error)
@@ -247,7 +258,10 @@ module.exports = function container(conf) {
         console.log(params)
       }
       client.api('AddOrder', params, function(error, data) {
-        return retry('trade', args, error)
+        if (error && error.message.match(recoverableErrors)) {
+          return retry('trade', args, error)
+        }
+
         var order = {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
@@ -256,9 +270,11 @@ module.exports = function container(conf) {
           created_at: new Date().getTime(),
           filled_size: '0'
         }
+
         if (opts.order_type === 'maker') {
           order.post_only = !!opts.post_only
         }
+
         if (so.debug) {
           console.log('\nData:')
           console.log(data)
@@ -267,25 +283,26 @@ module.exports = function container(conf) {
           console.log('\nError:')
           console.log(error)
         }
+
         if (error) {
           if (error.message.match(/Order:Insufficient funds$/)) {
             order.status = 'rejected'
             order.reject_reason = 'balance'
             return cb(null, order)
           } else if (error.message.length) {
-            console.error(('\nUnhandeled AddOrder error:').red)
+            console.error(('\nUnhandeld AddOrder error:').red)
             console.error(error)
             order.status = 'rejected'
             order.reject_reason = error.message
             return cb(null, order)
           } else if (data.error.length) {
-            console.error(('\nUnhandeled AddOrder error:').red)
+            console.error(('\nUnhandeld AddOrder error:').red)
             console.error(data.error)
             order.status = 'rejected'
             order.reject_reason = data.error.join(',')
-            return cb(null, order)
           }
         }
+
         orders['~' + data.result.txid[0]] = order
         cb(null, order)
       })
@@ -349,6 +366,7 @@ module.exports = function container(conf) {
       })
     },
 
+    // return the property used for range querying.
     getCursor: function(trade) {
       return (trade.time || trade)
     }
