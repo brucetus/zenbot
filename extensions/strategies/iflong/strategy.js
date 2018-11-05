@@ -23,7 +23,7 @@ module.exports = {
 
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
-      if (s.options.buy !== false) {
+      if (s.options.buy !== 'false') {
         if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
@@ -33,7 +33,7 @@ module.exports = {
           s.signal = !s.acted_on_trend ? 'buy' : null
         }
       }
-      if (s.options.sell !== false) {
+      if (s.options.sell !== 'false') {
         if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
