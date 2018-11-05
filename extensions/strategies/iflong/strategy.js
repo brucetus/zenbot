@@ -11,6 +11,8 @@ module.exports = {
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
     this.option('min_periods', 'min periods', Number, 120)
+    this.option('buy', 'buy', Boolean, true)
+    this.option('sell', 'sell', Boolean, true)
     this.option('up', 'up', Number, 1.01)
     this.option('down','down', Number, 0.99)
     this.option('tenkan', 'Tenkan (conversion) line', Number, 20)
@@ -21,21 +23,25 @@ module.exports = {
 
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
-      if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
-        if (s.trend !== 'up') {
-          s.acted_on_trend = false
+      if (s.options.buy !== false) {
+        if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'up'
+          if (dupOrderWorkAround.checkForPriorBuy(s))
+          s.signal = !s.acted_on_trend ? 'buy' : null
         }
-        s.trend = 'up'
-        if (dupOrderWorkAround.checkForPriorBuy(s))
-        s.signal = !s.acted_on_trend ? 'buy' : null
       }
-      if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
-        if (s.trend !== 'down') {
-          s.acted_on_trend = false
+      if (s.options.sell !== false) {
+        if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / Math.max(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'down'
+          if (dupOrderWorkAround.checkForPriorSell(s))
+          s.signal = !s.acted_on_trend ? 'sell' : null
         }
-        s.trend = 'down'
-        if (dupOrderWorkAround.checkForPriorSell(s))
-        s.signal = !s.acted_on_trend ? 'sell' : null
       }
     }
   },
