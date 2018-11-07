@@ -20,7 +20,7 @@ module.exports = function bittrex (conf) {
         throw new Error('please configure your Binance credentials in ' + path.resolve(__dirname, 'conf.js'))
       }
       authed_client = new ccxt.binance({ 'apiKey': conf.binance.key, 'secret': conf.binance.secret, 'options': { 'adjustForTimeDifference': true }, enableRateLimit: true })
-}
+    }
     return authed_client
   }
 
