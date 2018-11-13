@@ -4,7 +4,7 @@ var z = require('zero-fill')
 
 module.exports = {
   name: 'srsi',
-  description: 'Buys and sells when SRSI K crosses above or below threshold.',
+  description: 'Buys and sells when SRSI K hits oversold or overbought value.',
 
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
@@ -14,8 +14,8 @@ module.exports = {
     this.option('srsi_periods', 'number of srsi periods', 14)
     this.option('srsi_k', '%D line', Number, 3)
     this.option('srsi_d', '%D line', Number, 3)
-    this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 20)
-    this.option('overbought_srsi', 'sell when srsi reaches or goes above this value', Number, 80)
+    this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 10)
+    this.option('overbought_srsi', 'sell when srsi reaches or goes above this value', Number, 90)
     this.option('srsi_recover', 'allow srsi to recover this many points before buying', Number, 1)
   },
 
@@ -23,7 +23,7 @@ module.exports = {
     srsi(s, 'srsi', s.options.srsi_periods, s.options.srsi_k, s.options.srsi_d)
     if (typeof s.period.srsi_K === 'number') {
       if (s.options.buy !== false) {
-        if (s.period.srsi_K > s.options.oversold_srsi && s.lookback[0].srsi_K < s.options.oversold_srsi) {
+        if (s.period.srsi_K < s.options.oversold_srsi) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
           }
@@ -33,7 +33,7 @@ module.exports = {
         }
       }
       if (s.options.sell !== false) {
-        if (s.period.srsi_K < s.options.overbought_srsi && s.lookback[0].srsi_K > s.options.overbought_srsi) {
+        if (s.period.srsi_K > s.options.overbought_srsi) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
           }
