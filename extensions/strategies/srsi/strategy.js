@@ -21,9 +21,9 @@ module.exports = {
 
   calculate: function (s) {
     srsi(s, 'srsi', s.options.srsi_periods, s.options.srsi_k, s.options.srsi_d)
-    if (typeof s.period.srsi_K === 'number') {
+    if (typeof s.period.srsi_D === 'number') {
       if (s.options.buy !== false) {
-        if (s.period.srsi_K < s.options.oversold_srsi) {
+        if (s.period.srsi_D < s.options.oversold_srsi) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
           }
@@ -33,7 +33,7 @@ module.exports = {
         }
       }
       if (s.options.sell !== false) {
-        if (s.period.srsi_K > s.options.overbought_srsi) {
+        if (s.period.srsi_D > s.options.overbought_srsi) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
           }
@@ -52,9 +52,9 @@ module.exports = {
 
   onReport: function (s) {
     var cols = []
-    if (typeof s.period.srsi_K == 'number') {
+    if (typeof s.period.srsi_D == 'number') {
       var color = 'grey'
-      cols.push(z(8, n(s.period.srsi_K).format('0'), ' ')[color])
+      cols.push(z(8, n(s.period.srsi_D).format('0'), ' ')[color])
     }
     return cols
   }
