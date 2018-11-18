@@ -9,7 +9,7 @@ module.exports = {
   description: 'Pivot Reversal Strategy',
 
   getOptions: function () {
-    this.option('period_length', 'period length', String, '30m')
+    this.option('period_length', 'period length', String, '4h')
     this.option('min_periods', 'min periods', Number, 50)
     this.option('up', 'up', Number, 1)
     this.option('down','down', Number, 1)
@@ -17,7 +17,7 @@ module.exports = {
 
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
-      if (s.period.close / s.pivothigh > s.options.up) {
+      if (s.period.high / s.pivothigh > s.options.up) {
         if (s.trend !== 'up') {
           s.acted_on_trend = false
         }
@@ -25,7 +25,7 @@ module.exports = {
         if (dupOrderWorkAround.checkForPriorBuy(s))
         s.signal = !s.acted_on_trend ? 'buy' : null
       }
-      if (s.period.close / s.pivotlow < s.options.down) {
+      if (s.period.low / s.pivotlow < s.options.down) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
