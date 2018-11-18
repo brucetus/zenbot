@@ -3,7 +3,7 @@ var z = require('zero-fill')
 , srsi = require('../../../lib/srsi')
 
 module.exports = {
-  name: 'srsi',
+  name: 'srsi_k',
   description: 'Buys and sells when SRSI K hits oversold or overbought value.',
 
   getOptions: function () {
