@@ -4,7 +4,7 @@ var z = require('zero-fill')
 
 module.exports = {
   name: 'srsi_d',
-  description: 'Buys and sells when SRSI K hits oversold or overbought value.',
+  description: 'Buys and sells when SRSI D hits oversold or overbought value.',
 
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
