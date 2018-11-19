@@ -16,7 +16,6 @@ module.exports = {
     this.option('srsi_d', '%D line', Number, 3)
     this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 10)
     this.option('overbought_srsi', 'sell when srsi reaches or goes above this value', Number, 90)
-    this.option('srsi_recover', 'allow srsi to recover this many points before buying', Number, 1)
   },
 
   calculate: function (s) {
