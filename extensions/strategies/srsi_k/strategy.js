@@ -10,8 +10,8 @@ module.exports = {
     this.option('period_length', 'period length', String, '4h')
     this.option('min_periods', 'min. number of history periods', Number, 14)
     this.option('buy', 'buy', Boolean, false)
-    this.option('sell','sell', Boolean, false)
-    this.option('srsi_periods', 'number of srsi periods', Number, 14)
+    this.option('sell', 'sell', Boolean, false)
+    this.option('rsi_periods', 'number of srsi periods', Number, 14)
     this.option('srsi_k', '%D line', Number, 3)
     this.option('srsi_d', '%D line', Number, 3)
     this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 5)
@@ -19,7 +19,7 @@ module.exports = {
   },
 
   calculate: function (s) {
-    srsi(s, 'srsi', s.options.srsi_periods, s.options.srsi_k, s.options.srsi_d)
+    srsi(s, 'srsi', s.options.rsi_periods, s.options.srsi_k, s.options.srsi_d)
     if (typeof s.period.srsi_K === 'number') {
       if (s.options.buy !== false) {
         if (s.period.srsi_K < s.options.oversold_srsi) {
@@ -45,16 +45,13 @@ module.exports = {
   },
 
   onPeriod: function (s, cb) {
-    if (s.in_preroll) return cb()
+    if (!s.in_preroll)
     cb()
   },
 
   onReport: function (s) {
     var cols = []
-    if (typeof s.period.srsi_K == 'number') {
-      var color = 'grey'
-      cols.push(z(8, n(s.period.srsi_K).format('0'), ' ')[color])
-    }
+    cols.push(z(8, n(s.period.srsi_K).format('0'), ' ').cyan)
     return cols
   }
 }
