@@ -7,15 +7,15 @@ module.exports = {
   description: 'Buys and sells when SRSI K hits oversold or overbought value.',
 
   getOptions: function () {
-    this.option('period_length', 'period length', String, '2h')
+    this.option('period_length', 'period length', String, '4h')
     this.option('min_periods', 'min. number of history periods', Number, 14)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell','sell', Boolean, false)
-    this.option('srsi_periods', 'number of srsi periods', 14)
+    this.option('srsi_periods', 'number of srsi periods', Number, 14)
     this.option('srsi_k', '%D line', Number, 3)
     this.option('srsi_d', '%D line', Number, 3)
-    this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 10)
-    this.option('overbought_srsi', 'sell when srsi reaches or goes above this value', Number, 90)
+    this.option('oversold_srsi', 'buy when srsi reaches or drops below this value', Number, 5)
+    this.option('overbought_srsi', 'sell when srsi reaches or goes above this value', Number, 95)
   },
 
   calculate: function (s) {
