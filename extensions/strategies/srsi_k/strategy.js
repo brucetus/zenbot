@@ -1,6 +1,7 @@
 var z = require('zero-fill')
 , n = require('numbro')
 , srsi = require('../../../lib/srsi')
+, dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
   name: 'srsi_k',
