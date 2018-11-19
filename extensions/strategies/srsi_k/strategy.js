@@ -45,7 +45,7 @@ module.exports = {
   },
 
   onPeriod: function (s, cb) {
-    if (!s.in_preroll)
+    if (s.in_preroll) return cb()
     cb()
   },
 
