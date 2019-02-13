@@ -1,6 +1,6 @@
 var z = require('zero-fill')
 , n = require('numbro')
-, ema = require('../../../lib/ema')
+, ta_ema = require('../../../lib/ta_ema')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
@@ -48,7 +48,8 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
-      ema(s, 'ema', s.options.ema)
+      ta_ema(s, 'ema', s.options.ema)
+      s.period.ema = round(s.period.ema, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
       }
