@@ -1,6 +1,6 @@
 var z = require('zero-fill')
 , n = require('numbro')
-, ta_ema = require('../../../lib/ema1')
+, ema1 = require('../../../lib/ema1')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
