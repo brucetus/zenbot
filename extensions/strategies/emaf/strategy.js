@@ -1,6 +1,6 @@
 var z = require('zero-fill')
 , n = require('numbro')
-, ta_ema = require('../../../lib/ta_ema')
+, ta_ema = require('../../../lib/ema1')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
       if (s.options.buy !== false) {
-        if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.emaline > s.options.up)) {
+        if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.ema > s.options.up)) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
           }
@@ -34,7 +34,7 @@ module.exports = {
         }
       }
       if (s.options.sell !== false) {
-        if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / s.period.emaline < s.options.down)) {
+        if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / s.period.ema < s.options.down)) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
           }
@@ -48,10 +48,8 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
-      ta_ema(s, 'emaline', 200)
-      console.log(s.period.emaline)
-      console.log(s.emaline)
-      s.period.emalineline = round(s.period.emaline, 4)
+      ema1(s, 'ema', 200)
+      s.period.ema = round(s.period.ema, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
       }
@@ -66,12 +64,12 @@ module.exports = {
     var cols = []
     if (s.lookback[s.options.min_periods]) {
       if (!s.trend || s.trend == 'down') {
-        cols.push(z(8, n(s.period.emaline), ' '))
+        cols.push(z(8, n(s.period.ema), ' '))
         cols.push(z(1, ' '))
         cols.push(z(8, n(s.upfractal), ' '))
       }
       else if (s.trend == 'up') {
-        cols.push(z(8, n(s.period.emaline), ' '))
+        cols.push(z(8, n(s.period.ema), ' '))
         cols.push(z(1, ' '))
         cols.push(z(8, n(s.downfractal), ' '))
       }
