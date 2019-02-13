@@ -48,11 +48,9 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
-      Promise.all([ta_ema(s, s.options.ema)]).then(result => {
-        if(result && result.outReal) {
-          s.period.ema = result.outReal
-        }
-      })
+      ta_ema(s, 'ema', s.options.ema)
+      console.log(s.period.ema)
+      console.log(s.ema)
       s.period.ema = round(s.period.ema, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
