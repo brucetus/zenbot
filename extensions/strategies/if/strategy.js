@@ -14,11 +14,11 @@ module.exports = {
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('up', 'up', Number, 1)
-    this.option('down','down', Number, 1)
+    this.option('down', 'down', Number, 1)
     this.option('tenkan', 'Tenkan (conversion) line', Number, 20)
-    this.option('kijun','Kijun (base) line', Number, 60)
-    this.option('senkou_b','Senkou (leading) span B', Number, 120)
-    this.option('chikou','Chikou (lagging) span)', Number, 30)
+    this.option('kijun', 'Kijun (base) line', Number, 60)
+    this.option('senkou_b', 'Senkou (leading) span B', Number, 120)
+    this.option('chikou', 'Chikou (lagging) span)', Number, 30)
   },
 
   calculate: function (s) {
