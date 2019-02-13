@@ -49,6 +49,8 @@ module.exports = {
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
       ta_ema(s, 'emaline', 200)
+      console.log(s.period.emaline)
+      console.log(s.emaline)
       s.period.emalineline = round(s.period.emaline, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
