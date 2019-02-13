@@ -9,7 +9,7 @@ module.exports = {
 
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
-    this.option('min_periods', 'min periods', Number, 120)
+    this.option('min_periods', 'min periods', Number, 200)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('ema', 'ema', Number, 200)
@@ -49,7 +49,6 @@ module.exports = {
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
       ema1(s, 'ema', 200)
-      s.period.ema = round(s.period.ema, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
       }
