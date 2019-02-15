@@ -50,6 +50,9 @@ module.exports = {
     if (s.lookback[s.options.min_periods]) {
       ema1(s, 'ema', 200)
       s.period.ema = round(s.period.ema, 4)
+      if (s.period.ema = 0) {
+        s.period.ema = s.lookback[0].ema
+      }
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
       }
