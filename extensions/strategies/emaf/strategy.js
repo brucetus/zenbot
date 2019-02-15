@@ -1,6 +1,6 @@
 var z = require('zero-fill')
 , n = require('numbro')
-, ema1 = require('../../../lib/ema1')
+, ema = require('../../../lib/ema1')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
@@ -48,7 +48,7 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
-      ema1(s, 'ema', s.options.ema)
+      ema(s, 'ema', s.options.ema)
       s.period.ema = round(s.period.ema, 4)
       if (s.lookback[3].high <= s.lookback[1].high && s.lookback[2].high <= s.lookback[1].high && s.lookback[0].high <= s.lookback[1].high && s.period.high <= s.lookback[1].high) {
         s.upfractal = s.lookback[1].high
@@ -64,12 +64,12 @@ module.exports = {
     var cols = []
     if (s.lookback[s.options.min_periods]) {
       if (!s.trend || s.trend == 'down') {
-        cols.push(z(8, n(s.loobkack[0].ema), ' '))
+        cols.push(z(8, n(s.lookback[0].ema), ' '))
         cols.push(z(1, ' '))
         cols.push(z(8, n(s.upfractal), ' '))
       }
       else if (s.trend == 'up') {
-        cols.push(z(8, n(s.loobkack[0].ema), ' '))
+        cols.push(z(8, n(s.lookback[0].ema), ' '))
         cols.push(z(1, ' '))
         cols.push(z(8, n(s.downfractal), ' '))
       }
