@@ -1,6 +1,6 @@
 var z = require('zero-fill')
 , n = require('numbro')
-, ema = require('../../../lib/ema1')
+, ema = require('../../../lib/ema')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
@@ -13,8 +13,8 @@ module.exports = {
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('ema', 'ema', Number, 200)
-    this.option('up', 'up', Number, 1)
-    this.option('down', 'down', Number, 1)
+    this.option('up', 'up', Number, 1.005)
+    this.option('down', 'down', Number, 0.995)
     this.option('tenkan', 'Tenkan (conversion) line', Number, 20)
     this.option('kijun', 'Kijun (base) line', Number, 60)
     this.option('senkou_b', 'Senkou (leading) span B', Number, 120)
