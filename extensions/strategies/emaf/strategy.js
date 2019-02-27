@@ -14,7 +14,7 @@ module.exports = {
     this.option('sell', 'sell', Boolean, false)
     this.option('up', 'up', Number, 1.005)
     this.option('down', 'down', Number, 0.995)
-    this.option('ema', 'ema', Number, 200)
+    this.option('ema', 'ema', Number, 168)
   },
 
   calculate: function (s) {
