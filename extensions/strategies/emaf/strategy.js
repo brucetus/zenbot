@@ -9,12 +9,12 @@ module.exports = {
 
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
-    this.option('min_periods', 'min periods', Number, 168)
+    this.option('min_periods', 'min periods', Number, 100)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('up', 'up', Number, 1)
     this.option('down', 'down', Number, 1)
-    this.option('ema', 'ema', Number, 168)
+    this.option('ema', 'ema', Number, 100)
   },
 
   calculate: function (s) {
