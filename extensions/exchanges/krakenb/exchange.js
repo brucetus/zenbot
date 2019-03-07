@@ -123,14 +123,14 @@ module.exports = function container(conf) {
         // subtract 12 hours
         args.startTime = parseInt(args.endTime, 10) - 3600000
       }
-      if (opts.product_id == 'XXBTZUSD') opts.product_id = 'BTC-USDT'
-      if (opts.product_id == 'XETHZUSD') opts.product_id = 'ETH-USDT'
-      if (opts.product_id == 'XXRPZUSD') opts.product_id = 'XRP-USDT'
-      if (opts.product_id == 'BCHZUSD') opts.product_id = 'BCH-USDT'
-      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC-USDT'
-      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH-USDT'
-      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP-USDT'
-      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH-USDT'
+      if (opts.product_id == 'XXBTZUSD') opts.product_id = 'BTCUSDT'
+      if (opts.product_id == 'XETHZUSD') opts.product_id = 'ETHUSDT'
+      if (opts.product_id == 'XXRPZUSD') opts.product_id = 'XRPUSDT'
+      if (opts.product_id == 'BCHZUSD') opts.product_id = 'BCHUSDT'
+      //if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTCUSDT'
+      //if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETHUSDT'
+      //if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRPUSDT'
+      //if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCHUSDT'
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
