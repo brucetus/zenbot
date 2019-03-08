@@ -115,14 +115,14 @@ module.exports = function container(conf) {
       var args = {}
       if (opts.from) args.startTime = opts.from
       if (opts.to) args.endTime = opts.to
-      if (args.startTime && !args.endTime) {
+      //if (args.startTime && !args.endTime) {
         // add 12 hours
-        args.endTime = parseInt(args.startTime, 10) + 3600000
-      }
-      else if (args.endTime && !args.startTime) {
+      //  args.endTime = parseInt(args.startTime, 10) + 3600000
+      //}
+      //else if (args.endTime && !args.startTime) {
         // subtract 12 hours
-        args.startTime = parseInt(args.endTime, 10) - 3600000
-      }
+      //  args.startTime = parseInt(args.endTime, 10) - 3600000
+      //}
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USDT'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USDT'
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USDT'
