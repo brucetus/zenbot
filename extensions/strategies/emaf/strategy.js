@@ -12,36 +12,33 @@ module.exports = {
     this.option('min_periods', 'min periods', Number, 100)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
-    this.option('early', 'early exits', Boolean, true)
     this.option('up', 'up', Number, 1)
     this.option('down', 'down', Number, 1)
     this.option('ema', 'ema', Number, 100)
   },
 
   calculate: function (s) {
-    if (s.options.early !== false) {
-      if (s.lookback[s.options.ema]) {
-        ema(s, 'ema', s.options.ema)
-        s.period.ema = round(s.period.ema, 4)
-        if (s.options.buy !== false) {
-          if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.ema > s.options.up)) {
-            if (s.trend !== 'up') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'up'
-            if (dupOrderWorkAround.checkForPriorBuy(s))
-            s.signal = !s.acted_on_trend ? 'buy' : null
+    if (s.lookback[s.options.ema]) {
+      ema(s, 'ema', s.options.ema)
+      s.period.ema = round(s.period.ema, 4)
+      if (s.options.buy !== false) {
+        if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.ema > s.options.up)) {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
           }
+          s.trend = 'up'
+          if (dupOrderWorkAround.checkForPriorBuy(s))
+          s.signal = !s.acted_on_trend ? 'buy' : null
         }
-        if (s.options.sell !== false) {
-          if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / s.period.ema < s.options.down)) {
-            if (s.trend !== 'down') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'down'
-            if (dupOrderWorkAround.checkForPriorSell(s))
-            s.signal = !s.acted_on_trend ? 'sell' : null
+      }
+      if (s.options.sell !== false) {
+        if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / s.period.ema < s.options.down)) {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
           }
+          s.trend = 'down'
+          if (dupOrderWorkAround.checkForPriorSell(s))
+          s.signal = !s.acted_on_trend ? 'sell' : null
         }
       }
     }
@@ -55,30 +52,6 @@ module.exports = {
       if (s.lookback[3].low >= s.lookback[1].low && s.lookback[2].low >= s.lookback[1].low && s.lookback[0].low >= s.lookback[1].low && s.period.low >= s.lookback[1].low) {
         s.downfractal = s.lookback[1].low
       }
-      if (s.options.early !== true) {
-        ema(s, 'ema', s.options.ema)
-        s.period.ema = round(s.period.ema, 4)
-        if (s.options.buy !== false) {
-          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / s.period.ema > s.options.up)) {
-            if (s.trend !== 'up') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'up'
-            if (dupOrderWorkAround.checkForPriorBuy(s))
-            s.signal = !s.acted_on_trend ? 'buy' : null
-          }
-        }
-        if (s.options.sell !== false) {
-          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close / s.period.ema < s.options.down)) {
-            if (s.trend !== 'down') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'down'
-            if (dupOrderWorkAround.checkForPriorSell(s))
-            s.signal = !s.acted_on_trend ? 'sell' : null
-          }
-        }
-      }
     }
     cb()
   },
@@ -86,16 +59,11 @@ module.exports = {
   onReport: function (s) {
     var cols = []
     if (s.lookback[s.options.ema]) {
-      if (!s.trend || s.trend == 'down') {
-        cols.push(z(8, n(s.period.ema), ' '))
-        cols.push(z(1, ' '))
-        cols.push(z(8, n(s.upfractal), ' ').green)
-      }
-      else if (s.trend == 'up') {
-        cols.push(z(8, n(s.period.ema), ' '))
-        cols.push(z(1, ' '))
-        cols.push(z(8, n(s.downfractal), ' ').red)
-      }
+      cols.push(z(8, n(s.period.ema), ' '))
+      cols.push(z(1, ' '))
+      cols.push(z(8, n(s.upfractal), ' ').green)
+      cols.push(z(1, ' '))
+      cols.push(z(8, n(s.downfractal), ' ').red)
     }
     return cols
   }
