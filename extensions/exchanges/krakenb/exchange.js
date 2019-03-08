@@ -1,61 +1,109 @@
-const ccxt = require('ccxt')
-, path = require('path')
+var KrakenClient = require('kraken-api'),
+ccxt = require('ccxt'),
+minimist = require('minimist'),
+moment = require('moment'),
+n = require('numbro'),
 // eslint-disable-next-line no-unused-vars
-, colors = require('colors')
-, _ = require('lodash')
+colors = require('colors')
 
-module.exports = function bittrex (conf) {
-  var public_client, authed_client
-  let firstRun = true
-  let allowGetMarketCall = true
+module.exports = function container(conf) {
+  var s = {
+    options: minimist(process.argv)
+  }
+  var so = s.options
 
-  function publicClient () {
-    if (!public_client) public_client = new ccxt.binance({ 'apiKey': '', 'secret': '' })
+  var public_client, authed_client, binance_client
+  let firstRun = false
+  let allowGetMarketCall = false
+  // var recoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|API:Invalid nonce|API:Rate limit exceeded|between Cloudflare and the origin web server)/)
+  var recoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|API:Invalid nonce|between Cloudflare and the origin web server|The web server reported a gateway time-out|The web server reported a bad gateway|525: SSL handshake failed|Service:Unavailable|api.kraken.com \| 522:)/)
+  var silencedRecoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT)/)
+
+  function publicClient() {
+    if (!public_client) {
+      public_client = new KrakenClient()
+    }
     return public_client
   }
 
-  function authedClient () {
+  function binanceClient () {
+    if (!binance_client) binance_client = new ccxt.binance({ 'apiKey': '', 'secret': '', 'options': { 'adjustForTimeDifference': true }})
+    return binance_client
+  }
+
+  function authedClient() {
     if (!authed_client) {
-      if (!conf.binance || !conf.binance.key || conf.binance.key === 'YOUR-API-KEY') {
-        throw new Error('please configure your Binance credentials in ' + path.resolve(__dirname, 'conf.js'))
+      if (!conf.kraken || !conf.kraken.key || conf.kraken.key === 'YOUR-API-KEY') {
+        throw new Error('please configure your Kraken credentials in conf.js')
       }
-      authed_client = new ccxt.binance({ 'apiKey': conf.binance.key, 'secret': conf.binance.secret, 'options': { 'adjustForTimeDifference': true }, enableRateLimit: true })
+      authed_client = new KrakenClient(conf.kraken.key, conf.kraken.secret)
     }
     return authed_client
   }
 
-  /**
-  * Convert BNB-BTC to BNB/BTC
-  *
-  * @param product_id BNB-BTC
-  * @returns {string}
-  */
-  function joinProduct(product_id) {
-    let split = product_id.split('-')
-    return split[0] + '/' + split[1]
+  // This is to deal with a silly bug where kraken doesn't use a consistent definition for currency
+  // with certain assets they will mix the use of 'Z' and 'X' prefixes
+  function joinProductFormatted(product_id) {
+    var asset = product_id.split('-')[0]
+    var currency = product_id.split('-')[1]
+
+    var assetsToFix = ['BCH', 'DASH', 'EOS', 'GNO']
+    if (assetsToFix.indexOf(asset) >= 0 && currency.length > 3) {
+      currency = currency.substring(1)
+    }
+    return asset + currency
   }
 
-  function retry (method, args, err) {
-    if (method !== 'getTrades') {
-      console.error(('\nBinance API is down! unable to call ' + method + ', retrying in 20s').red)
-      if (err) console.error(err)
-      console.error(args.slice(0, -1))
+  function retry(method, args, error) {
+    let timeout, errorMsg
+    if (error.message.match(/API:Rate limit exceeded/)) {
+      timeout = 30000
+    } else {
+      timeout = 15000
     }
-    setTimeout(function () {
+
+    // silence common timeout errors
+    if (so.debug || !error.message.match(silencedRecoverableErrors)) {
+      if (error.message.match(/between Cloudflare and the origin web server/)) {
+        errorMsg = 'Connection between Cloudflare CDN and api.kraken.com failed'
+      }
+      else if (error.message.match(/The web server reported a gateway time-out/)) {
+        errorMsg = 'Web server Gateway time-out'
+      }
+      else if (error.message.match(/The web server reported a bad gateway/)) {
+        errorMsg = 'Web server bad Gateway'
+      }
+      else if (error.message.match(/525: SSL handshake failed/)) {
+        errorMsg = 'SSL handshake failed'
+      }
+      else if (error.message.match(/Service:Unavailable/)) {
+        errorMsg = 'Service Unavailable'
+      }
+      else if (error.message.match(/api.kraken.com \| 522:/)) {
+        errorMsg = 'Generic 522 Server error'
+      }
+
+      else {
+        errorMsg = error
+      }
+      console.warn(('\nKraken API warning - unable to call ' + method + ' (' + errorMsg + '), retrying in ' + timeout / 1000 + 's').yellow)
+    }
+    setTimeout(function() {
       exchange[method].apply(exchange, args)
-    }, 20000)
+    }, timeout)
   }
 
   var orders = {}
 
   var exchange = {
-    name: 'binance',
+    name: 'krakenb',
     historyScan: 'forward',
-    historyScanUsesTime: true,
-    makerFee: 0.1,
-    takerFee: 0.1,
+    makerFee: 0.16,
+    takerFee: 0.26,
+    // The limit for the public API is not documented, 1750 ms between getTrades in backfilling seems to do the trick to omit warning messages.
+    backfillRateLimit: 3500,
 
-    getProducts: function () {
+    getProducts: function() {
       return require('./products.json')
     },
 
@@ -63,7 +111,7 @@ module.exports = function bittrex (conf) {
       var func_args = [].slice.call(arguments)
       , trades = []
       , maxTime = 0
-      var client = publicClient()
+      var client = binanceClient()
       var args = {}
       if (opts.from) args.startTime = opts.from
       if (opts.to) args.endTime = opts.to
@@ -75,12 +123,16 @@ module.exports = function bittrex (conf) {
         // subtract 12 hours
         args.startTime = parseInt(args.endTime, 10) - 3600000
       }
+      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USDT'
+      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USDT'
+      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USDT'
+      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USDT'
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
+        client.fetchOHLCV(opts.product_id, args.timeframe, opts.from).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
@@ -104,7 +156,7 @@ module.exports = function bittrex (conf) {
         })
       }
       else {
-        client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
+        client.fetchTrades(opts.product_id, undefined, undefined, args).then(result => {
           var trades = result.map(function (trade) {
             return {
               trade_id: trade.id,
@@ -122,216 +174,232 @@ module.exports = function bittrex (conf) {
       }
     },
 
-    getBalance: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
+    getBalance: function(opts, cb) {
+      var args = [].slice.call(arguments)
       var client = authedClient()
-      client.fetchBalance().then(result => {
-        var balance = {asset: 0, currency: 0}
-        Object.keys(result).forEach(function (key) {
-          if (key === opts.currency) {
-            balance.currency = result[key].free + result[key].used
-            balance.currency_hold = result[key].used
+      if (so.leverage == 0) {
+        client.api('Balance', null, function(error, data) {
+          var balance = {
+            asset: '0',
+            asset_hold: '0',
+            currency: '0',
+            currency_hold: '0'
           }
-          if (key === opts.asset) {
-            balance.asset = result[key].free + result[key].used
-            balance.asset_hold = result[key].used
+          if (error) {
+            if (error.message.match(recoverableErrors)) {
+              return retry('getBalance', args, error)
+            }
+            console.error(('\ngetBalance error:').red)
+            console.error(error)
+            return cb(error)
           }
+          if (data.error.length) {
+            return cb(data.error.join(','))
+          }
+          if (data.result[opts.currency]) {
+            balance.currency = n(data.result[opts.currency]).format('0.00000000')
+            balance.currency_hold = '0'
+          }
+          if (data.result[opts.asset]) {
+            balance.asset = n(data.result[opts.asset]).format('0.00000000')
+            balance.asset_hold = '0'
+          }
+          cb(null, balance)
         })
+      }
+      else if (so.leverage > 0) {
+        var balance = {
+          asset: '100000',
+          asset_hold: '0',
+          currency: '100000',
+          currency_hold: '0'
+        }
         cb(null, balance)
-      })
-      .catch(function (error) {
-        console.error('An error occurred', error)
-        return retry('getBalance', func_args)
-      })
+      }
     },
 
-    getQuote: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
+    getQuote: function(opts, cb) {
+      var args = [].slice.call(arguments)
       var client = publicClient()
-      client.fetchTicker(joinProduct(opts.product_id)).then(result => {
-        cb(null, { bid: result.bid, ask: result.ask })
-      })
-      .catch(function (error) {
-        console.error('An error occurred', error)
-        return retry('getQuote', func_args)
-      })
-    },
-
-    getDepth: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = publicClient()
-      client.fetchOrderBook(joinProduct(opts.product_id), {limit: opts.limit}).then(result => {
-        cb(null, result)
-      })
-      .catch(function(error) {
-        console.error('An error ocurred', error)
-        return retry('getDepth', func_args)
-      })
-    },
-
-    cancelOrder: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
-      client.cancelOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
-        if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb()
-        cb(null)
-      }, function(err){
-        // match error against string:
-        // "binance {"code":-2011,"msg":"UNKNOWN_ORDER"}"
-
-        if (err) {
-          // decide if this error is allowed for a retry
-
-          if (err.message && err.message.match(new RegExp(/-2011|UNKNOWN_ORDER/))) {
-            console.error(('\ncancelOrder retry - unknown Order: ' + JSON.stringify(opts) + ' - ' + err).cyan)
-          } else {
-            // retry is allowed for this error
-
-            return retry('cancelOrder', func_args, err)
+      var pair = joinProductFormatted(opts.product_id)
+      client.api('Ticker', {
+        pair: pair
+      }, function(error, data) {
+        if (error) {
+          if (error.message.match(recoverableErrors)) {
+            return retry('getQuote', args, error)
           }
+          console.error(('\ngetQuote error:').red)
+          console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        cb(null, {
+          bid: data.result[pair].b[0],
+          ask: data.result[pair].a[0],
+        })
+      })
+    },
+
+    cancelOrder: function(opts, cb) {
+      var args = [].slice.call(arguments)
+      var client = authedClient()
+      client.api('CancelOrder', {
+        txid: opts.order_id
+      }, function(error, data) {
+        if (error) {
+          if (error.message.match(recoverableErrors)) {
+            return retry('cancelOrder', args, error)
+          }
+          console.error(('\ncancelOrder error:').red)
+          console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        if (so.debug) {
+          console.log('\nFunction: cancelOrder')
+          console.log(data)
+        }
+        cb(error)
+      })
+    },
+
+    trade: function(type, opts, cb) {
+      var args = [].slice.call(arguments)
+      var client = authedClient()
+      var params = {
+        pair: joinProductFormatted(opts.product_id),
+        type: type,
+        ordertype: (opts.order_type === 'taker' ? 'market' : 'limit'),
+        volume: opts.size,
+        trading_agreement: conf.kraken.tosagree
+      }
+      if (so.leverage > 1) {
+        params.leverage = so.leverage
+      }
+      if (opts.post_only === true && params.ordertype === 'limit') {
+        params.oflags = 'post'
+      }
+      if ('price' in opts) {
+        params.price = opts.price
+      }
+      if (so.debug) {
+        console.log('\nFunction: trade')
+        console.log(params)
+      }
+      client.api('AddOrder', params, function(error, data) {
+        if (error) {
+          return retry('trade', args, error)
         }
 
-        cb()
-      })
-    },
-
-    buy: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
-      if (typeof opts.post_only === 'undefined') {
-        opts.post_only = true
-      }
-      opts.type = 'limit'
-      var args = {}
-      if (opts.order_type === 'taker') {
-        delete opts.price
-        delete opts.post_only
-        opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
-      }
-      opts.side = 'buy'
-      delete opts.order_type
-      var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
-        if (result && result.message === 'Insufficient funds') {
-          order = {
-            status: 'rejected',
-            reject_reason: 'balance'
-          }
-          return cb(null, order)
-        }
-        order = {
-          id: result ? result.id : null,
+        var order = {
+          id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
           price: opts.price,
-          size: this.roundToNearest(opts.size, opts),
-          post_only: !!opts.post_only,
+          size: opts.size,
           created_at: new Date().getTime(),
-          filled_size: '0',
-          ordertype: opts.order_type
-        }
-        orders['~' + result.id] = order
-        cb(null, order)
-      }).catch(function (error) {
-        console.error('An error occurred', error)
-
-        // decide if this error is allowed for a retry:
-        // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
-        // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
-
-        if (error.message.match(new RegExp(/-1013|MIN_NOTIONAL|-2010/))) {
-          return cb(null, {
-            status: 'rejected',
-            reject_reason: 'balance'
-          })
+          filled_size: '0'
         }
 
-        return retry('buy', func_args)
-      })
-    },
+        if (opts.order_type === 'maker') {
+          order.post_only = !!opts.post_only
+        }
 
-    sell: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
-      if (typeof opts.post_only === 'undefined') {
-        opts.post_only = true
-      }
-      opts.type = 'limit'
-      var args = {}
-      if (opts.order_type === 'taker') {
-        delete opts.price
-        delete opts.post_only
-        opts.type = 'market'
-      } else {
-        args.timeInForce = 'GTC'
-      }
-      opts.side = 'sell'
-      delete opts.order_type
-      var order = {}
-      client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
-        if (result && result.message === 'Insufficient funds') {
-          order = {
-            status: 'rejected',
-            reject_reason: 'balance'
+        if (so.debug) {
+          console.log('\nData:')
+          console.log(data)
+          console.log('\nOrder:')
+          console.log(order)
+          console.log('\nError:')
+          console.log(error)
+        }
+
+        if (error) {
+          if (error.message.match(/Order:Insufficient funds$/)) {
+            order.status = 'rejected'
+            order.reject_reason = 'balance'
+            return cb(null, order)
+          } else if (error.message.length) {
+            console.error(('\nUnhandeld AddOrder error:').red)
+            console.error(error)
+            order.status = 'rejected'
+            order.reject_reason = error.message
+            return cb(null, order)
+          } else if (data.error.length) {
+            console.error(('\nUnhandeld AddOrder error:').red)
+            console.error(data.error)
+            order.status = 'rejected'
+            order.reject_reason = data.error.join(',')
           }
-          return cb(null, order)
         }
-        order = {
-          id: result ? result.id : null,
-          status: 'open',
-          price: opts.price,
-          size: this.roundToNearest(opts.size, opts),
-          post_only: !!opts.post_only,
-          created_at: new Date().getTime(),
-          filled_size: '0',
-          ordertype: opts.order_type
-        }
-        orders['~' + result.id] = order
+
+        orders['~' + data.result.txid[0]] = order
         cb(null, order)
-      }).catch(function (error) {
-        console.error('An error occurred', error)
-
-        // decide if this error is allowed for a retry:
-        // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
-        // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
-
-        if (error.message.match(new RegExp(/-1013|MIN_NOTIONAL|-2010/))) {
-          return cb(null, {
-            status: 'rejected',
-            reject_reason: 'balance'
-          })
-        }
-
-        return retry('sell', func_args)
       })
     },
 
-    roundToNearest: function(numToRound, opts) {
-      var numToRoundTo = _.find(this.getProducts(), { 'asset': opts.product_id.split('-')[0], 'currency': opts.product_id.split('-')[1] }).min_size
-      numToRoundTo = 1 / (numToRoundTo)
-
-      return Math.floor(numToRound * numToRoundTo) / numToRoundTo
+    buy: function(opts, cb) {
+      exchange.trade('buy', opts, cb)
     },
 
-    getOrder: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
+    sell: function(opts, cb) {
+      exchange.trade('sell', opts, cb)
+    },
+
+    getOrder: function(opts, cb) {
+      var args = [].slice.call(arguments)
       var order = orders['~' + opts.order_id]
-      client.fetchOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
-        if (body.status !== 'open' && body.status !== 'canceled') {
+      if (!order) return cb(new Error('order not found in cache'))
+      var client = authedClient()
+      var params = {
+        txid: opts.order_id
+      }
+      client.api('QueryOrders', params, function(error, data) {
+        if (error) {
+          return retry('getOrder', args, error)
+          console.error(('\ngetOrder error:').red)
+          console.error(error)
+          return cb(error)
+        }
+        if (data.error.length) {
+          return cb(data.error.join(','))
+        }
+        var orderData = data.result[params.txid]
+        if (so.debug) {
+          console.log('\nfunction: QueryOrders')
+          console.log(orderData)
+        }
+
+        if (!orderData) {
+          return cb('Order not found')
+        }
+
+        if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
+          order.status = 'rejected'
+          order.reject_reason = 'post only'
+          order.done_at = new Date().getTime()
+          order.filled_size = '0.00000000'
+          return cb(null, order)
+        }
+
+        if (orderData.status === 'closed' || (orderData.status === 'canceled' && orderData.reason === 'User canceled')) {
           order.status = 'done'
           order.done_at = new Date().getTime()
-          order.filled_size = parseFloat(body.amount) - parseFloat(body.remaining)
+          order.filled_size = n(orderData.vol_exec).format('0.00000000')
+          order.price = n(orderData.price).format('0.00000000')
           return cb(null, order)
         }
+
         cb(null, order)
-      }, function(err) {
-        return retry('getOrder', func_args, err)
       })
     },
 
-    getCursor: function (trade) {
+    // return the property used for range querying.
+    getCursor: function(trade) {
       return (trade.time || trade)
     }
   }
