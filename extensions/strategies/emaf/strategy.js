@@ -89,12 +89,12 @@ module.exports = {
       if (!s.trend || s.trend == 'down') {
         cols.push(z(8, n(s.period.ema), ' '))
         cols.push(z(1, ' '))
-        cols.push(z(8, n(s.upfractal), ' '))
+        cols.push(z(8, n(s.upfractal), ' ').green)
       }
       else if (s.trend == 'up') {
         cols.push(z(8, n(s.period.ema), ' '))
         cols.push(z(1, ' '))
-        cols.push(z(8, n(s.downfractal), ' '))
+        cols.push(z(8, n(s.downfractal), ' ').red)
       }
     }
     return cols
