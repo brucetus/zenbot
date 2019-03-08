@@ -116,11 +116,11 @@ module.exports = function container(conf) {
       if (opts.from) args.startTime = opts.from
       if (opts.to) args.endTime = opts.to
       if (args.startTime && !args.endTime) {
-        add 12 hours
+        //add 12 hours
        args.endTime = parseInt(args.startTime, 10) + 3600000
       }
       else if (args.endTime && !args.startTime) {
-        subtract 12 hours
+        //subtract 12 hours
        args.startTime = parseInt(args.endTime, 10) - 3600000
       }
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USDT'
