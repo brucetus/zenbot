@@ -27,7 +27,7 @@ module.exports = function container(conf) {
   }
 
   function binanceClient () {
-    if (!binance_client) binance_client = new ccxt.binance({ 'apiKey': '', 'secret': '' })
+    if (!binance_client) binance_client = new ccxt.binance({ 'apiKey': '', 'secret': '', 'options': { 'adjustForTimeDifference': true }})
     return binance_client
   }
 
