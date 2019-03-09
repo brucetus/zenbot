@@ -40,7 +40,7 @@ c.kraken = {}
 c.kraken.key = 'YOUR-API-KEY'
 c.kraken.secret = 'YOUR-SECRET'
 // Please read API TOS on https://www.kraken.com/u/settings/api
-c.kraken.tosagree = 'disagree'
+c.kraken.tosagree = 'agree'
 
 // to enable Robinhood trading, enter your login credentials:
 c.robinhood = {}
