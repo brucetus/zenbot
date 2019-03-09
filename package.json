@@ -64,7 +64,7 @@
     "jasmine": "^2.8.0",
     "jquery": "^3.2.1",
     "keltnerchannel": "^1.4.2",
-    "kraken-api": "^1.0.0",
+    "kraken-api": "github:brucetus/npm-kraken-api",
     "lint-staged": "^7.0.4",
     "lodash": "^4.17.4",
     "lolex": "^2.3.2",
