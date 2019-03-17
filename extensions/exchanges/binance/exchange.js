@@ -8,7 +8,7 @@ module.exports = function binance (conf) {
   var public_client, authed_client
 
   function publicClient () {
-    if (!public_client) public_client = new ccxt.binance({ 'apiKey': '', 'secret': '', 'options': { 'adjustForTimeDifference': true } })
+    if (!public_client) public_client = new ccxt.binance({ 'apiKey': '', 'secret': '' })
     return public_client
   }
 
