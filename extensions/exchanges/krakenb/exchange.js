@@ -117,11 +117,11 @@ module.exports = function container(conf) {
       if (opts.to) args.endTime = opts.to
       if (args.startTime && !args.endTime) {
         //add 12 hours
-       args.endTime = parseInt(args.startTime, 10) + 3600000
+        args.endTime = parseInt(args.startTime, 10) + 3600000
       }
       else if (args.endTime && !args.startTime) {
         //subtract 12 hours
-       args.startTime = parseInt(args.endTime, 10) - 3600000
+        args.startTime = parseInt(args.endTime, 10) - 3600000
       }
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USDT'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USDT'
@@ -131,31 +131,31 @@ module.exports = function container(conf) {
         cb(null, [])
         return null
       }
-      // if (firstRun) {
-      //   client.fetchOHLCV(opts.product_id, args.timeframe, opts.from).then(result => {
-      //     var lastVal = 0
-      //     trades = result.map(function(trade) {
-      //       let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
-      //       lastVal = parseFloat(trade[4])
-      //       if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
-      //       return {
-      //         trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
-      //         time: trade[0],
-      //         size: parseFloat(trade[5]),
-      //         price: parseFloat(trade[4]),
-      //         side: buySell
-      //       }
-      //     })
-      //     cb(null, trades)
-      //   }).catch(function(error) {
-      //     firstRun = false
-      //     allowGetMarketCall = false
-      //     setTimeout(()=>{allowGetMarketCall = true}, 5000)
-      //     console.error('[OHLCV] An error occurred', error)
-      //     return retry('getTrades', func_args, error)
-      //   })
-      // }
-      // else {
+      if (firstRun) {
+        client.fetchOHLCV(opts.product_id, args.timeframe, opts.from).then(result => {
+          var lastVal = 0
+          trades = result.map(function(trade) {
+            let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
+            lastVal = parseFloat(trade[4])
+            if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
+            return {
+              trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
+              time: trade[0],
+              size: parseFloat(trade[5]),
+              price: parseFloat(trade[4]),
+              side: buySell
+            }
+          })
+          cb(null, trades)
+        }).catch(function(error) {
+          firstRun = false
+          allowGetMarketCall = false
+          setTimeout(()=>{allowGetMarketCall = true}, 5000)
+          console.error('[OHLCV] An error occurred', error)
+          return retry('getTrades', func_args, error)
+        })
+      }
+      else {
         client.fetchTrades(opts.product_id, opts.from, undefined, args).then(result => {
           var trades = result.map(function (trade) {
             return {
@@ -171,7 +171,7 @@ module.exports = function container(conf) {
           console.error('An error occurred', error)
           return retry('getTrades', func_args)
         })
-      //}
+      }
     },
 
     getBalance: function(opts, cb) {
