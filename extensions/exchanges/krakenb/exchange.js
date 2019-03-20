@@ -156,7 +156,7 @@ module.exports = function container(conf) {
       //   })
       // }
       // else {
-        client.fetchTrades(opts.product_id, opts.from, undefined, args).then(result => {
+        client.fetchTrades(opts.product_id, opts.from).then(result => {
           var trades = result.map(function (trade) {
             return {
               trade_id: trade.id,
