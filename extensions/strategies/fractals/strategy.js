@@ -1,5 +1,6 @@
-var z = require('zero-fill'),
-n = require('numbro')
+var z = require('zero-fill')
+, n = require('numbro')
+, dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
   name: 'fractals',
@@ -15,19 +16,27 @@ module.exports = {
   },
 
   calculate: function (s) {
-    if (s.period.high / s.upfractal > s.options.up) {
-      if (s.trend !== 'up') {
-        s.acted_on_trend = false
+    if (s.upfractal || s.downfractal) {
+      if (s.options.buy !== false) {
+        if (s.period.high / s.upfractal > s.options.up) {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'up'
+          if (dupOrderWorkAround.checkForPriorBuy(s))
+          s.signal = !s.acted_on_trend ? 'buy' : null
+        }
       }
-      s.trend = 'up'
-      s.signal = !s.acted_on_trend ? 'buy' : null
-    }
-    if (s.period.low / s.downfractal < s.options.down) {
-      if (s.trend !== 'down') {
-        s.acted_on_trend = false
+      if (s.options.sell !== false) {
+        if (s.period.low / s.downfractal < s.options.down) {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
+          }
+          s.trend = 'down'
+          if (dupOrderWorkAround.checkForPriorSell(s))
+          s.signal = !s.acted_on_trend ? 'sell' : null
+        }
       }
-      s.trend = 'down'
-      s.signal = !s.acted_on_trend ? 'sell' : null
     }
   },
 
