@@ -8,8 +8,10 @@ module.exports = {
   getOptions: function () {
     this.option('period_length', 'period length', String, '2h')
     this.option('min_periods', 'min_periods', Number, 20)
-    this.option('up', 'up', Number, 1.01)
-    this.option('down','down', Number, 0.99)
+    this.option('buy', 'buy', Boolean, false)
+    this.option('sell', 'sell', Boolean, false)
+    this.option('up', 'up', Number, 1)
+    this.option('down','down', Number, 1)
   },
 
   calculate: function (s) {
@@ -43,9 +45,9 @@ module.exports = {
 
   onReport: function (s) {
     var cols = []
-    cols.push(z(8, n(s.upfractal), ' '))
+    cols.push(z(8, n(s.upfractal), ' ').green)
     cols.push(z(1, ' '))
-    cols.push(z(8, n(s.downfractal), ' '))
+    cols.push(z(8, n(s.downfractal), ' ').red)
     return cols
   }
 }
