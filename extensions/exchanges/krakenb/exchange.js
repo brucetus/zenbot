@@ -122,7 +122,7 @@ module.exports = function container(conf) {
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USDT'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USDT'
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USDT'
-      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USDT'
+      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCHABC/USDT'
       
       const symbol = opts.product_id
       client.fetchTrades(symbol, startTime, undefined, args).then(result => {
