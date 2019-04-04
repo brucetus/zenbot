@@ -51,7 +51,7 @@ function addProduct(base, quote, altname) {
     break;
   case 'XXRP':
     min_size = '30'
-    increment = '0.0001'
+    increment = '0.00001'
     break;
   case 'XXLM':
     min_size = '300'
