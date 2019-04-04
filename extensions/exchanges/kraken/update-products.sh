@@ -8,6 +8,7 @@ var products = []
 
 function addProduct(base, quote, altname) {
   var min_size = '0.01'
+  var increment = '0.01'
   switch (base) {
   case 'XREP':
     min_size = '0.3'
@@ -50,6 +51,7 @@ function addProduct(base, quote, altname) {
     break;
   case 'XXRP':
     min_size = '30'
+    increment = '0.0001"
     break;
   case 'XXLM':
     min_size = '300'
@@ -67,7 +69,7 @@ function addProduct(base, quote, altname) {
     asset: base,
     currency: quote,
     min_size: min_size,
-    increment: '0.01',
+    increment: increment,
     label: getPair(base) + '/' + getPair(quote)
   })
 }
