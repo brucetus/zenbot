@@ -111,19 +111,17 @@ module.exports = function container(conf) {
       var client = coinbaseClient()
       var args = {}
       if (opts.from) {
-        // move cursor into the future
-        args.before = opts.from
-      }
-      else if (opts.to) {
-        // move cursor into the past
-        args.after = opts.to
+        startTime = opts.from
+      } else {
+        startTime = parseInt(opts.to, 10) - 3600000
+        args['endTime'] = opts.to
       }
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USD'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USD'
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USD'
       if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USD'
       const symbol = opts.product_id
-      client.fetchTrades(symbol, opts.from, args).then(result => {
+      client.fetchTrades(symbol, startTime, args).then(result => {
         var trades = result.map(trade => ({
           trade_id: trade.id,
           time: trade.timestamp,
