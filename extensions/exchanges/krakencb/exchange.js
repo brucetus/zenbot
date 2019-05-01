@@ -116,6 +116,7 @@ module.exports = function container(conf) {
         startTime = parseInt(opts.to, 10) - 3600000
         args['endTime'] = opts.to
       }
+      console.log(opts.from)
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USD'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USD'
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USD'
