@@ -123,9 +123,7 @@ module.exports = function container(conf) {
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USD'
       if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USD'
       const symbol = opts.product_id
-      client.fetchTrades(symbol, opts.from, undefined, args).then(result => {
-        return result
-      }).then(result => {
+      client.fetchTrades(symbol, args).then(result => {
         var trades = result.map(trade => ({
           trade_id: trade.id,
           time: trade.timestamp,
