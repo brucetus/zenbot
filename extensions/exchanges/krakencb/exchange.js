@@ -27,7 +27,7 @@ module.exports = function container(conf) {
   }
 
   function coinbaseClient () {
-    if (!coinbase_client) coinbase_client = new ccxt.coinbasepro({ 'apiKey': '', 'secret': ''}})
+    if (!coinbase_client) coinbase_client = new ccxt.coinbasepro({ 'apiKey': '', 'secret': ''})
     return coinbase_client
   }
 
