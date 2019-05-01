@@ -108,57 +108,37 @@ module.exports = function container(conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      var client = coinbaseClient(opts.product_id)
+      var client = coinbaseClient()
       var args = {}
       if (opts.from) {
+        // move cursor into the future
         args.before = opts.from
       }
       else if (opts.to) {
+        // move cursor into the past
         args.after = opts.to
       }
-      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC-USD'
-      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH-USD'
-      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP-USD'
-      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH-USD'
-      var cache = websocket_cache[opts.product_id]
-      var max_trade_id = cache.trade_ids.reduce(function(a, b) {
-        return Math.max(a, b)
-      }, -1)
-      if (opts.from && max_trade_id >= opts.from) {
-        var fromIndex = cache.trades.findIndex((value)=> {return value.trade_id == opts.from})
-        var newTrades = cache.trades.slice(fromIndex + 1)
-        newTrades = newTrades.map(function (trade) {
-          return {
-            trade_id: trade.trade_id,
-            time: new Date(trade.time).getTime(),
-            size: Number(trade.size),
-            price: Number(trade.price),
-            side: trade.side
-          }
-        })
-        newTrades.reverse()
-        cb(null, newTrades)
-        // trim cache
-        cache.trades = cache.trades.slice(fromIndex)
-        cache.trade_ids = cache.trade_ids.slice(fromIndex)
-        return
-      }
-      if(so.debug) console.log('getproducttrades call')
-      client.getProductTrades(opts.product_id, args, function (err, resp, body) {
-        if (!err) err = statusErr(resp, body)
-        if (err) return retry('getTrades', func_args, err)
-        var trades = body.map(function (trade) {
-          return {
-            trade_id: trade.trade_id,
-            time: new Date(trade.time).getTime(),
-            size: Number(trade.size),
-            price: Number(trade.price),
-            side: trade.side
-          }
-        })
-        trades.reverse()
+      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USD'
+      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USD'
+      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USD'
+      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USD'
+      const symbol = opts.product_id
+      client.fetchTrades(symbol, startTime, undefined, args).then(result => {
+        return result
+      }).then(result => {
+        var trades = result.map(trade => ({
+          trade_id: trade.id,
+          time: trade.timestamp,
+          size: parseFloat(trade.amount),
+          price: parseFloat(trade.price),
+          side: trade.side
+        }))
         cb(null, trades)
+      }).catch(function (error) {
+        console.error('An error occurred', error)
+        return retry('getTrades', func_args)
       })
+
     },
 
     getBalance: function(opts, cb) {
@@ -282,6 +262,7 @@ module.exports = function container(conf) {
         if (error) {
           return retry('trade', args, error)
         }
+
         var order = {
           id: data && data.result ? data.result.txid[0] : null,
           status: 'open',
@@ -290,9 +271,11 @@ module.exports = function container(conf) {
           created_at: new Date().getTime(),
           filled_size: '0'
         }
+
         if (opts.order_type === 'maker') {
           order.post_only = !!opts.post_only
         }
+
         if (so.debug) {
           console.log('\nData:')
           console.log(data)
@@ -301,6 +284,7 @@ module.exports = function container(conf) {
           console.log('\nError:')
           console.log(error)
         }
+
         if (error) {
           if (error.message.match(/Order:Insufficient funds$/)) {
             order.status = 'rejected'
@@ -319,6 +303,7 @@ module.exports = function container(conf) {
             order.reject_reason = data.error.join(',')
           }
         }
+
         orders['~' + data.result.txid[0]] = order
         cb(null, order)
       })
@@ -355,9 +340,11 @@ module.exports = function container(conf) {
           console.log('\nfunction: QueryOrders')
           console.log(orderData)
         }
+
         if (!orderData) {
           return cb('Order not found')
         }
+
         if (orderData.status === 'canceled' && orderData.reason === 'Post only order') {
           order.status = 'rejected'
           order.reject_reason = 'post only'
@@ -365,6 +352,7 @@ module.exports = function container(conf) {
           order.filled_size = '0.00000000'
           return cb(null, order)
         }
+
         if (orderData.status === 'closed' || (orderData.status === 'canceled' && orderData.reason === 'User canceled')) {
           order.status = 'done'
           order.done_at = new Date().getTime()
@@ -372,10 +360,12 @@ module.exports = function container(conf) {
           order.price = n(orderData.price).format('0.00000000')
           return cb(null, order)
         }
+
         cb(null, order)
       })
     },
 
+    // return the property used for range querying.
     getCursor: function(trade) {
       return (trade.time || trade)
     }
