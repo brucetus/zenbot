@@ -1,10 +1,11 @@
-var KrakenClient = require('kraken-api'),
-ccxt = require('ccxt'),
-minimist = require('minimist'),
-moment = require('moment'),
-n = require('numbro'),
+var KrakenClient = require('kraken-api')
+, ccxt = require('ccxt')
+, Gdax = require('gdax')
+, minimist = require('minimist')
+, moment = require('moment')
+, n = require('numbro')
 // eslint-disable-next-line no-unused-vars
-colors = require('colors')
+, colors = require('colors')
 
 module.exports = function container(conf) {
   var s = {
@@ -12,7 +13,7 @@ module.exports = function container(conf) {
   }
   var so = s.options
 
-  var public_client, authed_client, coinbase_client
+  var public_client, authed_client, coinbase_client = {}, websocket_client = {}, websocket_cache = {}
   let firstRun = true
   let allowGetMarketCall = true
   // var recoverableErrors = new RegExp(/(ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|API:Invalid nonce|API:Rate limit exceeded|between Cloudflare and the origin web server)/)
@@ -26,9 +27,120 @@ module.exports = function container(conf) {
     return public_client
   }
 
-  function coinbaseClient () {
-    if (!coinbase_client) coinbase_client = new ccxt.coinbasepro({ 'apiKey': '', 'secret': ''})
-    return coinbase_client
+  function coinbaseClient (product_id) {
+    if (!coinbase_client[product_id]) {
+      websocketClient(product_id)
+      coinbase_client[product_id] = new Gdax.PublicClient(conf.gdax.apiURI)
+    }
+    return coinbase_client[product_id]
+  }
+
+  function websocketClient (product_id) {
+    if (!websocket_client[product_id]) {
+      var auth = null
+      var client_state = {}
+      if(conf.gdax.key && conf.gdax.key !== 'YOUR-API-KEY'){
+        auth = {
+          key: conf.gdax.key,
+          secret: conf.gdax.b64secret,
+          passphrase: conf.gdax.passphrase
+        }
+      }
+
+      var channels = ['matches', 'ticker']
+
+      // subscribe to user channels which need fully auth data
+      if (auth) {
+        channels.push('user')
+      }
+
+      websocket_client[product_id] = new Gdax.WebsocketClient([product_id], conf.gdax.websocketURI, auth, {channels})
+
+      // initialize a cache for the websocket connection
+      websocket_cache[product_id] = {
+        trades: [],
+        trade_ids: [],
+        orders: {},
+        ticker: {}
+      }
+
+      websocket_client[product_id].on('open', () => {
+        if (so.debug) {
+          console.log('websocket connection to ' + product_id + ' opened')
+        }
+      })
+
+      websocket_client[product_id].on('message', (message) => {
+        // all messages with user_id are related to trades for current authenticated user
+        if(message.user_id){
+          if (so.debug) {
+            console.log('websocket user channel income', message)
+          }
+
+          switch (message.type) {
+          case 'open':
+            handleOrderOpen(message, product_id)
+            break
+          case 'done':
+            handleOrderDone(message, product_id)
+            break
+          case 'change':
+            handleOrderChange(message, product_id)
+            break
+          case 'match':
+            handleOrderMatch(message, product_id)
+            break
+          default:
+            break
+          }
+        }
+
+        switch (message.type) {
+        case 'open':
+          break
+        case 'done':
+          break
+        case 'change':
+          break
+        case 'match':
+          handleTrade(message, product_id)
+          break
+        case 'ticker':
+          handleTicker(message, product_id)
+          break
+        default:
+          break
+        }
+      })
+
+      websocket_client[product_id].on('error', (err) => {
+        client_state.errored = true
+
+        if (so.debug) {
+          console.error('websocket error: ', err, 'restarting websocket connection')
+        }
+
+        websocket_client[product_id].disconnect()
+        websocket_client[product_id] = null
+        websocket_cache[product_id] = null
+        websocketClient(product_id)
+      })
+
+      websocket_client[product_id].on('close', () => {
+        if (client_state.errored){
+          client_state.errored = false
+          return
+        }
+
+        if (so.debug) {
+          console.error('websocket connection to '+product_id+' closed, attempting reconnect')
+        }
+
+        websocket_client[product_id] = null
+        websocket_client[product_id] = websocketClient(product_id)
+      })
+    }
+    return websocket_client[product_id]
   }
 
   function authedClient() {
@@ -108,30 +220,61 @@ module.exports = function container(conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      var client = coinbaseClient()
+      var client = publicClient(opts.product_id)
       var args = {}
-      console.log(startTime)
-      var startTime = new Date(opts.from).toISOString();
-      console.log(startTime)
-      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USD'
-      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH/USD'
-      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP/USD'
-      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH/USD'
-      const symbol = opts.product_id
-      client.fetchTrades(symbol, startTime, args).then(result => {
-        var trades = result.map(trade => ({
-          trade_id: trade.id,
-          time: trade.timestamp,
-          size: parseFloat(trade.amount),
-          price: parseFloat(trade.price),
-          side: trade.side
-        }))
+      var symbol = null
+      if (opts.product_id == 'XXBT-ZUSD') symbol = 'BTC-USD'
+      if (opts.product_id == 'XETH-ZUSD') symbol = 'ETH-USD'
+      if (opts.product_id == 'XXRP-ZUSD') symbol = 'XRP-USD'
+      if (opts.product_id == 'BCH-ZUSD') symbol = 'BCH-USD'
+      if (opts.from) {
+        // move cursor into the future
+        args.before = opts.from
+      }
+      else if (opts.to) {
+        // move cursor into the past
+        args.after = opts.to
+      }
+      // check for locally cached trades from the websocket feed
+      var cache = websocket_cache[symbol]
+      var max_trade_id = cache.trade_ids.reduce(function(a, b) {
+        return Math.max(a, b)
+      }, -1)
+      if (opts.from && max_trade_id >= opts.from) {
+        var fromIndex = cache.trades.findIndex((value)=> {return value.trade_id == opts.from})
+        var newTrades = cache.trades.slice(fromIndex + 1)
+        newTrades = newTrades.map(function (trade) {
+          return {
+            trade_id: trade.trade_id,
+            time: new Date(trade.time).getTime(),
+            size: Number(trade.size),
+            price: Number(trade.price),
+            side: trade.side
+          }
+        })
+        newTrades.reverse()
+        cb(null, newTrades)
+        // trim cache
+        cache.trades = cache.trades.slice(fromIndex)
+        cache.trade_ids = cache.trade_ids.slice(fromIndex)
+        return
+      }
+      if(so.debug) console.log('getproducttrades call')
+      client.getProductTrades(symbol, args, function (err, resp, body) {
+        if (!err) err = statusErr(resp, body)
+        if (err) return retry('getTrades', func_args, err)
+        var trades = body.map(function (trade) {
+          return {
+            trade_id: trade.trade_id,
+            time: new Date(trade.time).getTime(),
+            size: Number(trade.size),
+            price: Number(trade.price),
+            side: trade.side
+          }
+        })
+        trades.reverse()
         cb(null, trades)
-      }).catch(function (error) {
-        console.error('An error occurred', error)
-        return retry('getTrades', func_args)
       })
-
     },
 
     getBalance: function(opts, cb) {
