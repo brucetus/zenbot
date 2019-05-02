@@ -220,13 +220,12 @@ module.exports = function container(conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      var client = publicClient(opts.product_id)
+      var client = coinbaseClient(opts.product_id)
       var args = {}
-      var symbol = null
-      if (opts.product_id == 'XXBT-ZUSD') symbol = 'BTC-USD'
-      if (opts.product_id == 'XETH-ZUSD') symbol = 'ETH-USD'
-      if (opts.product_id == 'XXRP-ZUSD') symbol = 'XRP-USD'
-      if (opts.product_id == 'BCH-ZUSD') symbol = 'BCH-USD'
+      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC-USD'
+      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH-USD'
+      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP-USD'
+      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH-USD'
       if (opts.from) {
         // move cursor into the future
         args.before = opts.from
@@ -236,7 +235,7 @@ module.exports = function container(conf) {
         args.after = opts.to
       }
       // check for locally cached trades from the websocket feed
-      var cache = websocket_cache[symbol]
+      var cache = websocket_cache[opts.product_id]
       var max_trade_id = cache.trade_ids.reduce(function(a, b) {
         return Math.max(a, b)
       }, -1)
@@ -260,7 +259,7 @@ module.exports = function container(conf) {
         return
       }
       if(so.debug) console.log('getproducttrades call')
-      client.getProductTrades(symbol, args, function (err, resp, body) {
+      client.getProductTrades(opts.product_id, args, function (err, resp, body) {
         if (!err) err = statusErr(resp, body)
         if (err) return retry('getTrades', func_args, err)
         var trades = body.map(function (trade) {
