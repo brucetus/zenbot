@@ -278,7 +278,7 @@ module.exports = function container(conf) {
         return
       }
       if(so.debug) console.log('getproducttrades call')
-      client.getProductTrades(opts.product_id, opts.from, function (err, resp, body) {
+      client.getProductTrades(opts.product_id, args, function (err, resp, body) {
         if (!err) err = statusErr(resp, body)
         if (err) return retry('getTrades', func_args, err)
         var trades = body.map(function (trade) {
