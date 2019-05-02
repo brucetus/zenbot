@@ -77,38 +77,38 @@ module.exports = function container(conf) {
             console.log('websocket user channel income', message)
           }
 
-          switch (message.type) {
-          case 'open':
-            handleOrderOpen(message, product_id)
-            break
-          case 'done':
-            handleOrderDone(message, product_id)
-            break
-          case 'change':
-            handleOrderChange(message, product_id)
-            break
-          case 'match':
-            handleOrderMatch(message, product_id)
-            break
-          default:
-            break
-          }
+          // switch (message.type) {
+          // case 'open':
+          //   handleOrderOpen(message, product_id)
+          //   break
+          // case 'done':
+          //   handleOrderDone(message, product_id)
+          //   break
+          // case 'change':
+          //   handleOrderChange(message, product_id)
+          //   break
+          // case 'match':
+          //   handleOrderMatch(message, product_id)
+          //   break
+          // default:
+          //   break
+          // }
         }
 
         switch (message.type) {
-        case 'open':
+          case 'open':
           break
-        case 'done':
+          case 'done':
           break
-        case 'change':
+          case 'change':
           break
-        case 'match':
+          case 'match':
           handleTrade(message, product_id)
           break
-        case 'ticker':
+          case 'ticker':
           handleTicker(message, product_id)
           break
-        default:
+          default:
           break
         }
       })
@@ -209,6 +209,10 @@ module.exports = function container(conf) {
     var cache = websocket_cache[product_id]
     cache.trades.push(trade)
     cache.trade_ids.push(trade.trade_id)
+  }
+
+  function handleTicker(ticker, product_id) {
+    websocket_cache[product_id].ticker = ticker
   }
 
   var orders = {}
