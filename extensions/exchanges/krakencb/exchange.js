@@ -239,10 +239,6 @@ module.exports = function container(conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC-USD'
-      if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH-USD'
-      if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP-USD'
-      if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH-USD'
       var client = coinbaseClient(opts.product_id)
       var args = {}
       if (opts.from) {
