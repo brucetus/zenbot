@@ -111,10 +111,10 @@ module.exports = function container(conf) {
       var client = coinbaseClient()
       var args = {}
       if (opts.from) {
-        startTime = opts.from
+        startTime = opts.from/1000
       } else {
         startTime = parseInt(opts.to, 10) - 3600000
-        args['endTime'] = opts.to
+        args['endTime'] = opts.to/1000
       }
       console.log(opts.from)
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC/USD'
