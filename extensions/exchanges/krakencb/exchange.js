@@ -77,22 +77,22 @@ module.exports = function container(conf) {
             console.log('websocket user channel income', message)
           }
 
-          // switch (message.type) {
-          // case 'open':
-          //   handleOrderOpen(message, product_id)
-          //   break
-          // case 'done':
-          //   handleOrderDone(message, product_id)
-          //   break
-          // case 'change':
-          //   handleOrderChange(message, product_id)
-          //   break
-          // case 'match':
-          //   handleOrderMatch(message, product_id)
-          //   break
-          // default:
-          //   break
-          // }
+          switch (message.type) {
+          case 'open':
+            handleOrderOpen(message, product_id)
+            break
+          case 'done':
+            handleOrderDone(message, product_id)
+            break
+          case 'change':
+            handleOrderChange(message, product_id)
+            break
+          case 'match':
+            handleOrderMatch(message, product_id)
+            break
+          default:
+            break
+          }
         }
 
         switch (message.type) {
