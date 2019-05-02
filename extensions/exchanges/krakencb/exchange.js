@@ -216,8 +216,8 @@ module.exports = function container(conf) {
   var exchange = {
     name: 'krakencb',
     historyScan: 'forward',
-    makerFee: 0.16,
-    takerFee: 0.26,
+    makerFee: 0.12,
+    takerFee: 0.22,
     backfillRateLimit: 3500,
 
     getProducts: function() {
@@ -226,12 +226,12 @@ module.exports = function container(conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      var client = coinbaseClient(opts.product_id)
-      var args = {}
       if (opts.product_id == 'XXBT-ZUSD') opts.product_id = 'BTC-USD'
       if (opts.product_id == 'XETH-ZUSD') opts.product_id = 'ETH-USD'
       if (opts.product_id == 'XXRP-ZUSD') opts.product_id = 'XRP-USD'
       if (opts.product_id == 'BCH-ZUSD') opts.product_id = 'BCH-USD'
+      var client = coinbaseClient(opts.product_id)
+      var args = {}
       if (opts.from) {
         // move cursor into the future
         args.before = opts.from
