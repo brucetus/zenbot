@@ -228,10 +228,10 @@ module.exports = function container(conf) {
 
   var exchange = {
     name: 'krakencb',
-    historyScan: 'forward',
+    historyScan: 'backward',
     makerFee: 0.12,
     takerFee: 0.22,
-    backfillRateLimit: 3500,
+    backfillRateLimit: 335,
 
     getProducts: function() {
       return require('./products.json')
