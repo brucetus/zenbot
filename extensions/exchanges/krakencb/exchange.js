@@ -205,6 +205,12 @@ module.exports = function container(conf) {
     }, timeout)
   }
 
+  function handleTrade(trade, product_id) {
+    var cache = websocket_cache[product_id]
+    cache.trades.push(trade)
+    cache.trade_ids.push(trade.trade_id)
+  }
+
   var orders = {}
 
   var exchange = {
