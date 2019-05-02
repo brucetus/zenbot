@@ -153,6 +153,15 @@ module.exports = function container(conf) {
     return authed_client
   }
 
+  function statusErr (resp, body) {
+    if (resp.statusCode !== 200) {
+      var err = new Error('non-200 status: ' + resp.statusCode)
+      err.code = 'HTTP_STATUS'
+      err.body = body
+      return err
+    }
+  }
+
   // This is to deal with a silly bug where kraken doesn't use a consistent definition for currency
   // with certain assets they will mix the use of 'Z' and 'X' prefixes
   function joinProductFormatted(product_id) {
