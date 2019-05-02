@@ -214,6 +214,98 @@ module.exports = function container(conf) {
     }, timeout)
   }
 
+  function coinbaseRetry (method, args, err) {
+    if (method !== 'getTrades') {
+      console.error(('\nGDAX API is down! unable to call ' + method + ', retrying in 10s').red)
+      if (err) console.error(err)
+      console.error(args.slice(0, -1))
+    }
+    setTimeout(function () {
+      exchange[method].apply(exchange, args)
+    }, 10000)
+  }
+
+  function handleOrderOpen(update, product_id) {
+    websocket_cache[product_id].orders['~'+update.order_id] = {
+      id: update.order_id,
+      price: update.price,
+      size: update.remaining_size,
+      product_id: update.product_id,
+      side: update.side,
+      status: 'open',
+      settled: false,
+      filled_size: 0
+    }
+  }
+
+  function handleOrderDone(update, product_id) {
+    let cached_order = websocket_cache[product_id].orders['~'+update.order_id]
+    if(cached_order){
+      /*
+      order canceled by user or on platform: which must be retried see "reason":
+      { type: 'done',
+        side: 'sell',
+        order_id: 'xxxx',
+        reason: 'canceled',
+        product_id: 'LTC-EUR',
+        price: '142.33000000',
+        remaining_size: '1.24390150',
+        sequence: 1337,
+        user_id: '5a2aeXXX',
+        profile_id: 'xxx',
+        time: '2018-03-09T16:28:49.293000Z'
+      }
+
+      complete order response; no further action:
+      { type: 'done',
+        side: 'sell',
+        order_id: 'xxxx',
+        reason: 'filled',
+        product_id: 'LTC-EUR',
+        price: '142.81000000',
+        remaining_size: '0.00000000',
+        sequence: 1337,
+        user_id: '5a2aeXXX',
+        profile_id: 'xxx',
+        time: '2018-03-09T16:56:39.352000Z'
+      }
+      */
+
+      // get order "reason":
+      //  - "canceled" by user or platform
+      //  - "filled" order successfully placed and filled
+      let reason = update.reason
+
+      cached_order.status = 'done'
+
+      // "canceled" is not a success order instead it must be retried
+      // force zenbot a order retry; see "engine.js" for possible retry conditions
+      if (reason && reason == 'canceled') {
+        cached_order.status = 'rejected'
+        cached_order.reject_reason = 'post only'
+      }
+
+      cached_order.done_at = update.time
+      cached_order.done_reason = reason
+      cached_order.settled = true
+    }
+  }
+
+  function handleOrderChange(update, product_id) {
+    var cached_order = websocket_cache[product_id].orders['~'+update.order_id]
+    if(cached_order && update.new_size){
+      cached_order.size = update.new_size
+    }
+  }
+
+  function handleOrderMatch(update, product_id) {
+    var cached_order = websocket_cache[product_id].orders['~'+update.maker_order_id] || websocket_cache[product_id].orders['~'+update.taker_order_id]
+    if(cached_order){
+      cached_order.price = update.price
+      cached_order.filled_size = (parseFloat(cached_order.filled_size) + update.size).toString()
+    }
+  }
+
   function handleTrade(trade, product_id) {
     var cache = websocket_cache[product_id]
     cache.trades.push(trade)
@@ -280,7 +372,7 @@ module.exports = function container(conf) {
       if(so.debug) console.log('getproducttrades call')
       client.getProductTrades(opts.product_id, args, function (err, resp, body) {
         if (!err) err = statusErr(resp, body)
-        if (err) return retry('getTrades', func_args, err)
+        if (err) return coinbaseRetry('getTrades', func_args, err)
         var trades = body.map(function (trade) {
           return {
             trade_id: trade.trade_id,
