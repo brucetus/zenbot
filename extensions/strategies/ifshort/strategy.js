@@ -23,24 +23,26 @@ module.exports = {
 
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
-      if (s.options.buy !== false) {
-        if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
-          if (s.trend !== 'up') {
-            s.acted_on_trend = false
+      if (s.options.close == false) {
+        if (s.options.buy !== false) {
+          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
+            if (s.trend !== 'up') {
+              s.acted_on_trend = false
+            }
+            s.trend = 'up'
+            if (dupOrderWorkAround.checkForPriorBuy(s))
+            s.signal = !s.acted_on_trend ? 'buy' : null
           }
-          s.trend = 'up'
-          if (dupOrderWorkAround.checkForPriorBuy(s))
-          s.signal = !s.acted_on_trend ? 'buy' : null
         }
-      }
-      if (s.options.sell !== false) {
-        if ((s.period.close / s.downfractal < s.options.down) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
-          if (s.trend !== 'down') {
-            s.acted_on_trend = false
+        if (s.options.sell !== false) {
+          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
+            if (s.trend !== 'down') {
+              s.acted_on_trend = false
+            }
+            s.trend = 'down'
+            if (dupOrderWorkAround.checkForPriorSell(s))
+            s.signal = !s.acted_on_trend ? 'sell' : null
           }
-          s.trend = 'down'
-          if (dupOrderWorkAround.checkForPriorSell(s))
-          s.signal = !s.acted_on_trend ? 'sell' : null
         }
       }
     }
@@ -65,6 +67,28 @@ module.exports = {
       if (s.lookback[1].low <= Math.max(s.lookback[31].senkou_a, s.lookback[31].senkou_b)) {
         if (s.lookback[3].low >= s.lookback[1].low && s.lookback[2].low >= s.lookback[1].low && s.lookback[0].low >= s.lookback[1].low && s.period.low >= s.lookback[1].low) {
           s.downfractal = s.lookback[1].low
+        }
+      }
+      if (s.options.close !== false) {
+        if (s.options.buy !== false) {
+          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) > s.options.up)) {
+            if (s.trend !== 'up') {
+              s.acted_on_trend = false
+            }
+            s.trend = 'up'
+            if (dupOrderWorkAround.checkForPriorBuy(s))
+            s.signal = !s.acted_on_trend ? 'buy' : null
+          }
+        }
+        if (s.options.sell !== false) {
+          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close / Math.min(s.lookback[29].senkou_a, s.lookback[29].senkou_b) < s.options.down)) {
+            if (s.trend !== 'down') {
+              s.acted_on_trend = false
+            }
+            s.trend = 'down'
+            if (dupOrderWorkAround.checkForPriorSell(s))
+            s.signal = !s.acted_on_trend ? 'sell' : null
+          }
         }
       }
     }
