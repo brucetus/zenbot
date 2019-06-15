@@ -90,7 +90,7 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       cols.push(z(8, n(s.period.ema), ' '))
       cols.push(z(1, ' '))
-      cols.push(z(8, n(s.period.cmf), ' ').orange)
+      cols.push(z(8, n(s.period.cmf), ' '))
     }
     return cols
   }
