@@ -24,6 +24,8 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       ema(s, 'ema', s.options.ema)
       s.period.ema = round(s.period.ema, 4)
+      cmf(s, 'cmf', s.options.cmf)
+      s.period.cmf = round(s.period.cmf, 4)
       if (s.options.close == false) {
         if (s.options.buy !== false) {
           if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.ema > s.options.up) && s.period.cmf > 0) {
@@ -57,8 +59,6 @@ module.exports = {
       if (s.lookback[3].low >= s.lookback[1].low && s.lookback[2].low >= s.lookback[1].low && s.lookback[0].low >= s.lookback[1].low && s.period.low >= s.lookback[1].low) {
         s.downfractal = s.lookback[1].low
       }
-      cmf(s, 'cmf', s.options.cmf)
-      s.period.cmf = round(s.period.cmf, 4)
       if (s.options.close !== false) {
         if (s.options.buy !== false) {
           if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / s.period.ema > s.options.up) && s.period.cmf > 0) {
