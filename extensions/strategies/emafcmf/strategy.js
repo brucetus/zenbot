@@ -21,8 +21,8 @@ module.exports = {
   calculate: function (s) {
     if (s.lookback[s.options.ema]) {
       ema(s, 'ema', s.options.ema)
-      //let mfv = ((s.period.close - s.period.low) - (s.period.high - s.period.close)) / (s.period.high - s.period.low)
-      s.cmf = ((((s.period.close - s.period.low) - (s.period.high - s.period.close)) / (s.period.high - s.period.low)) + s.options.cmf) / (s.period.volume + s.options.cmf)
+      let mfv = ((s.period.close - s.period.low) - (s.period.high - s.period.close)) / (s.period.high - s.period.low)
+      s.cmf = (s.period.volume * mfv + s.options.cmf) / (s.period.volume + s.options.cmf)
       if (s.options.close == false) {
         if (s.options.buy !== false) {
           if (s.period.high > s.upfractal && s.period.high > s.period.ema && s.period.cmf > 0) {
@@ -87,6 +87,7 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       cols.push(z(8, n(s.period.ema), ' '))
       cols.push(z(1, ' '))
+      cols.push(z(3, n(mfv), ' '))
       cols.push(z(6, n(s.period.cmf), ' '))
     }
     return cols
