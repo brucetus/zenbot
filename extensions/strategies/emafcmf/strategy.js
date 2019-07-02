@@ -24,7 +24,7 @@ module.exports = {
       cmf(s, 'cmf', s.options.cmf)
       if (s.options.close == false) {
         if (s.options.buy !== false) {
-          if ((s.period.high / s.upfractal > s.options.up) && (s.period.high > s.period.ema) && s.period.cmf > 0) {
+          if (s.period.high > s.upfractal && s.period.high > s.period.ema && s.period.cmf > 0) {
             if (s.trend !== 'up') {
               s.acted_on_trend = false
             }
@@ -34,7 +34,7 @@ module.exports = {
           }
         }
         if (s.options.sell !== false) {
-          if ((s.period.low / s.downfractal < s.options.down) && (s.period.low < s.period.ema) && s.period.cmf < 0) {
+          if (s.period.low < s.downfractal && s.period.low < s.period.ema && s.period.cmf < 0) {
             if (s.trend !== 'down') {
               s.acted_on_trend = false
             }
@@ -57,7 +57,7 @@ module.exports = {
       }
       if (s.options.close !== false) {
         if (s.options.buy !== false) {
-          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close > s.period.ema) && s.period.cmf > 0) {
+          if (s.period.close > s.upfractal && s.period.close > s.period.ema && s.period.cmf > 0) {
             if (s.trend !== 'up') {
               s.acted_on_trend = false
             }
@@ -67,7 +67,7 @@ module.exports = {
           }
         }
         if (s.options.sell !== false) {
-          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close < s.period.ema) && s.period.cmf < 0) {
+          if (s.period.close < s.downfractal && s.period.close < s.period.ema && s.period.cmf < 0) {
             if (s.trend !== 'down') {
               s.acted_on_trend = false
             }
@@ -86,7 +86,7 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       cols.push(z(8, n(s.period.ema), ' '))
       cols.push(z(1, ' '))
-      cols.push(z(8, n(s.period.cmf), ' '))
+      cols.push(z(6, n(s.period.cmf), ' '))
     }
     return cols
   }
