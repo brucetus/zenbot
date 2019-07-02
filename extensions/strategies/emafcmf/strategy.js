@@ -87,7 +87,7 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       cols.push(z(8, n(s.period.ema), ' '))
       cols.push(z(1, ' '))
-      cols.push(z(6, n(s.period.cmf), ' '))
+      cols.push(z(6, n(s.options.cmf), ' '))
       cols.push(z(6, n(s.mfv), ' '))
       cols.push(z(6, n(s.period.volume), ' '))
 
