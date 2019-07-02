@@ -14,8 +14,6 @@ module.exports = {
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('close', 'close', Boolean, false)
-    this.option('up', 'up', Number, 1)
-    this.option('down', 'down', Number, 1)
     this.option('ema', 'ema', Number, 100)
     this.option('cmf', 'cmf', Number, 20)
   },
@@ -23,12 +21,10 @@ module.exports = {
   calculate: function (s) {
     if (s.lookback[s.options.ema]) {
       ema(s, 'ema', s.options.ema)
-      s.period.ema = round(s.period.ema, 4)
       cmf(s, 'cmf', s.options.cmf)
-      s.period.cmf = round(s.period.cmf, 4)
       if (s.options.close == false) {
         if (s.options.buy !== false) {
-          if ((s.period.high / s.upfractal > s.options.up) && (s.period.high / s.period.ema > s.options.up) && s.period.cmf > 0) {
+          if ((s.period.high / s.upfractal > s.options.up) && (s.period.high > s.period.ema) && s.period.cmf > 0) {
             if (s.trend !== 'up') {
               s.acted_on_trend = false
             }
@@ -38,7 +34,7 @@ module.exports = {
           }
         }
         if (s.options.sell !== false) {
-          if ((s.period.low / s.downfractal < s.options.down) && (s.period.low / s.period.ema < s.options.down) && s.period.cmf < 0) {
+          if ((s.period.low / s.downfractal < s.options.down) && (s.period.low < s.period.ema) && s.period.cmf < 0) {
             if (s.trend !== 'down') {
               s.acted_on_trend = false
             }
@@ -61,7 +57,7 @@ module.exports = {
       }
       if (s.options.close !== false) {
         if (s.options.buy !== false) {
-          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close / s.period.ema > s.options.up) && s.period.cmf > 0) {
+          if ((s.period.close / s.upfractal > s.options.up) && (s.period.close > s.period.ema) && s.period.cmf > 0) {
             if (s.trend !== 'up') {
               s.acted_on_trend = false
             }
@@ -71,7 +67,7 @@ module.exports = {
           }
         }
         if (s.options.sell !== false) {
-          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close / s.period.ema < s.options.down) && s.period.cmf < 0) {
+          if ((s.period.close / s.downfractal < s.options.down) && (s.period.close < s.period.ema) && s.period.cmf < 0) {
             if (s.trend !== 'down') {
               s.acted_on_trend = false
             }
