@@ -1,14 +1,14 @@
 var z = require('zero-fill')
-  , n = require('numbro')
-  , ema = require('../../../lib/ema')
-  , rsi = require('../../../lib/rsi')
-  , stddev = require('../../../lib/stddev')
-  , Phenotypes = require('../../../lib/phenotype')
+, n = require('numbro')
+, ema = require('../../../lib/ema')
+, rsi = require('../../../lib/rsi')
+, stddev = require('../../../lib/stddev')
+, Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'trend_ema',
   description:
-    'Buy when (EMA - last(EMA) > 0) and sell when (EMA - last(EMA) < 0). Optional buy on low RSI.',
+  'Buy when (EMA - last(EMA) > 0) and sell when (EMA - last(EMA) < 0). Optional buy on low RSI.',
 
   getOptions: function () {
     this.option('period', 'period length, same as --period_length', String, '2m')
@@ -72,43 +72,29 @@ module.exports = {
 
   onReport: function(s) {
     var cols = []
-    if (typeof s.period.trend_ema_stddev === 'number') {
+    if (typeof s.period.trend_ema === 'number') {
       var color = 'grey'
-      if (s.period.trend_ema_rate > s.period.trend_ema_stddev) {
-        color = 'green'
-      } else if (s.period.trend_ema_rate < s.period.trend_ema_stddev * -1) {
-        color = 'red'
-      }
-      cols.push(z(8, n(s.period.trend_ema_rate).format('0.0000'), ' ')[color])
-      if (s.period.trend_ema_stddev) {
-        cols.push(z(8, n(s.period.trend_ema_stddev).format('0.0000'), ' ').grey)
-      }
-    } else {
-      if (s.period.trend_ema_stddev) {
-        cols.push('                  ')
-      } else {
-        cols.push('         ')
-      }
+      cols.push(z(8, n(s.period.trend_ema).format('0.0000'), ' ')[color])
     }
-    return cols
-  },
+  }
+  return cols
+},
 
-  phenotypes: {
-    // -- common
-    period_length: Phenotypes.RangePeriod(1, 120, 'm'),
-    min_periods: Phenotypes.Range(1, 100),
-    markdown_buy_pct: Phenotypes.RangeFloat(-1, 5),
-    markup_sell_pct: Phenotypes.RangeFloat(-1, 5),
-    order_type: Phenotypes.ListOption(['maker', 'taker']),
-    sell_stop_pct: Phenotypes.Range0(1, 50),
-    buy_stop_pct: Phenotypes.Range0(1, 50),
-    profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+phenotypes: {
+  // -- common
+  period_length: Phenotypes.RangePeriod(1, 120, 'm'),
+  min_periods: Phenotypes.Range(1, 100),
+  markdown_buy_pct: Phenotypes.RangeFloat(-1, 5),
+  markup_sell_pct: Phenotypes.RangeFloat(-1, 5),
+  order_type: Phenotypes.ListOption(['maker', 'taker']),
+  sell_stop_pct: Phenotypes.Range0(1, 50),
+  buy_stop_pct: Phenotypes.Range0(1, 50),
+  profit_stop_enable_pct: Phenotypes.Range0(1, 20),
+  profit_stop_pct: Phenotypes.Range(1,20),
 
-    // -- strategy
-    trend_ema: Phenotypes.Range(1, 40),
-    oversold_rsi_periods: Phenotypes.Range(5, 50),
-    oversold_rsi: Phenotypes.Range(20, 100)
-  },
+  // -- strategy
+  trend_ema: Phenotypes.Range(1, 40),
+  oversold_rsi_periods: Phenotypes.Range(5, 50),
+  oversold_rsi: Phenotypes.Range(20, 100)
+},
 }
-
