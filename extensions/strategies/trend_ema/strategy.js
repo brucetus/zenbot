@@ -73,8 +73,7 @@ module.exports = {
   onReport: function(s) {
     var cols = []
     if (typeof s.period.trend_ema === 'number') {
-      var color = 'grey'
-      cols.push(z(8, n(s.period.trend_ema).format('0.0000'), ' ')[color])
+      cols.push(z(8, n(s.period.trend_ema), ' '))
     }
   }
   return cols
