@@ -10,11 +10,11 @@ module.exports = {
 
   getOptions: function () {
     this.option('period_length', 'period_length', String, '2h')
-    this.option('min_periods', 'min_periods', Number, 100)
+    this.option('min_periods', 'min_periods', Number, 150)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
     this.option('close', 'close', Boolean, false)
-    this.option('ema', 'ema', Number, 100)
+    this.option('ema', 'ema', Number, 150)
     this.option('cmf', 'cmf', Number, 20)
   },
 
