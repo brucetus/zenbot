@@ -14,7 +14,6 @@ module.exports = {
     this.option('min_periods', 'min_periods', Number, 150)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
-    this.option('close', 'close', Boolean, false)
     this.option('ema', 'ema', Number, 150)
     this.option('cmf', 'cmf', Number, 20)
     this.option('svo', 'voshort', Number, 20)
@@ -29,28 +28,6 @@ module.exports = {
       s.period.cmf = round(s.period.cmf, 4)
       vo(s, 'vo', s.options.svo, s.options.lvo)
       s.period.vo = round(s.period.vo, 4)
-      if (s.options.close == false) {
-        if (s.options.buy !== false) {
-          if (s.period.high > s.upfractal && s.period.high > s.period.ema && s.period.cmf > 0) {
-            if (s.trend !== 'up') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'up'
-            if (dupOrderWorkAround.checkForPriorBuy(s))
-            s.signal = !s.acted_on_trend ? 'buy' : null
-          }
-        }
-        if (s.options.sell !== false) {
-          if (s.period.low < s.downfractal && s.period.low < s.period.ema && s.period.cmf < 0) {
-            if (s.trend !== 'down') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'down'
-            if (dupOrderWorkAround.checkForPriorSell(s))
-            s.signal = !s.acted_on_trend ? 'sell' : null
-          }
-        }
-      }
     }
   },
 
@@ -62,26 +39,24 @@ module.exports = {
       if (s.lookback[3].low >= s.lookback[1].low && s.lookback[2].low >= s.lookback[1].low && s.lookback[0].low >= s.lookback[1].low && s.period.low >= s.lookback[1].low) {
         s.downfractal = s.lookback[1].low
       }
-      if (s.options.close !== false) {
-        if (s.options.buy !== false) {
-          if (s.period.close > s.upfractal && s.period.close > s.period.ema && s.period.cmf > 0) {
-            if (s.trend !== 'up') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'up'
-            if (dupOrderWorkAround.checkForPriorBuy(s))
-            s.signal = !s.acted_on_trend ? 'buy' : null
+      if (s.options.buy !== false) {
+        if (s.period.close > s.upfractal && s.period.close > s.period.ema && s.period.cmf > 0 && s.period.vo > 0) {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
           }
+          s.trend = 'up'
+          if (dupOrderWorkAround.checkForPriorBuy(s))
+          s.signal = !s.acted_on_trend ? 'buy' : null
         }
-        if (s.options.sell !== false) {
-          if (s.period.close < s.downfractal && s.period.close < s.period.ema && s.period.cmf < 0) {
-            if (s.trend !== 'down') {
-              s.acted_on_trend = false
-            }
-            s.trend = 'down'
-            if (dupOrderWorkAround.checkForPriorSell(s))
-            s.signal = !s.acted_on_trend ? 'sell' : null
+      }
+      if (s.options.sell !== false && s.period.vo > 0) {
+        if (s.period.close < s.downfractal && s.period.close < s.period.ema && s.period.cmf < 0 && s.period.vo > 0) {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
           }
+          s.trend = 'down'
+          if (dupOrderWorkAround.checkForPriorSell(s))
+          s.signal = !s.acted_on_trend ? 'sell' : null
         }
       }
     }
@@ -91,7 +66,11 @@ module.exports = {
   onReport: function (s) {
     var cols = []
     if (s.lookback[s.options.ema]) {
-      cols.push(z(8, n(s.period.vo), ' '))
+      cols.push(z(6, n(s.period.ema),).red)
+      cols.push(z(1, ' '))
+      cols.push(z(6, n(s.period.cmf), ' ').orange)
+      cols.push(z(1, ' '))
+      cols.push(z(6, n(s.period.vo), ' ').teal)
     }
     return cols
   }
