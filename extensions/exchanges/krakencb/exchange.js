@@ -1,6 +1,6 @@
 var KrakenClient = require('kraken-api')
 , ccxt = require('ccxt')
-, Gdax = require('gdax')
+, Gdax = require('coinbase-pro')
 , minimist = require('minimist')
 , moment = require('moment')
 , n = require('numbro')
