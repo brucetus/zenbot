@@ -68,9 +68,9 @@ module.exports = {
     if (s.lookback[s.options.ema]) {
       cols.push(z(6, n(s.period.ema),).red)
       cols.push(z(1, ' '))
-      cols.push(z(6, n(s.period.cmf), ' ').orange)
+      cols.push(z(6, n(s.period.cmf), ' ').yellow)
       cols.push(z(1, ' '))
-      cols.push(z(6, n(s.period.vo), ' ').teal)
+      cols.push(z(6, n(s.period.vo), ' ').blue)
     }
     return cols
   }
