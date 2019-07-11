@@ -70,7 +70,7 @@ module.exports = {
       cols.push(z(1, ' '))
       cols.push(z(6, n(s.period.cmf), ' ').yellow)
       cols.push(z(1, ' '))
-      cols.push(z(6, n(s.period.vo), ' ').blue)
+      cols.push(z(6, n(s.period.vo), ' ').cyan)
     }
     return cols
   }
