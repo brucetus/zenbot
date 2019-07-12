@@ -64,7 +64,7 @@ module.exports = function kraken (conf) {
       , maxTime = 0
       var client = publicClient()
       var args = {
-        pair:joinProduct(opts.product_id),
+        pair: joinProduct(opts.product_id),
         interval: 120,
         since: Number(opts.from) * 1000000
       }
