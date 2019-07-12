@@ -72,7 +72,7 @@ module.exports = function kraken (conf) {
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), opts.timeframe, args.since).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), '120', args.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
