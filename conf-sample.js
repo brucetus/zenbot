@@ -135,3 +135,9 @@ c.notifiers.discord.color = null // color as a decimal
 
 // output
 c.output  = {}
+
+// REST API
+c.output.api = {}
+c.output.api.on = false
+c.output.api.ip = '0.0.0.0' // IPv4 or IPv6 address to listen on, uses all available interfaces if omitted
+c.output.api.port = 0 // 0 = random port, set to 17365 if you use docker
