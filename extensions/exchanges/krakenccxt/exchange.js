@@ -52,6 +52,7 @@ module.exports = function kraken (conf) {
     historyScanUsesTime: true,
     makerFee: 0.16,
     takerFee: 0.26,
+    backfillRateLimit: 5000,
 
     getProducts: function () {
       return require('./products.json')
