@@ -72,7 +72,7 @@ module.exports = function kraken (conf) {
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), opts.timeframe, opts.from).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), opts.timeframe, args.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
@@ -96,14 +96,14 @@ module.exports = function kraken (conf) {
         })
       }
       else {
-        client.fetchTrades(joinProduct(opts.product_id), args).then(result => {
+        client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
           var trades = result.map(function (trade) {
             return {
-              trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
-              time: trade[2],
+              trade_id: trade[2] + trade[1] + trade[0],
+              time: moment.unix(trade[2]).valueOf(),
               size: parseFloat(trade[1]),
               price: parseFloat(trade[0]),
-              side: trade[3]
+              side: trade[3] == 'b' ? 'buy' : 'sell'
             }
           })
           cb(null, trades)
