@@ -63,15 +63,23 @@ module.exports = function kraken (conf) {
       , trades = []
       , maxTime = 0
       var client = publicClient()
-      var args = {
-        since: Number(opts.from)
+      var args = {}
+      if (opts.from) args.startTime = opts.from
+      if (opts.to) args.endTime = opts.to
+      if (args.startTime && !args.endTime) {
+        // add 12 hours
+        args.endTime = parseInt(args.startTime, 10) + 3600000
+      }
+      else if (args.endTime && !args.startTime) {
+        // subtract 12 hours
+        args.startTime = parseInt(args.endTime, 10) - 3600000
       }
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
