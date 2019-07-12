@@ -64,22 +64,15 @@ module.exports = function kraken (conf) {
       , maxTime = 0
       var client = publicClient()
       var args = {}
-      if (opts.from) args.startTime = opts.from
-      if (opts.to) args.endTime = opts.to
-      if (args.startTime && !args.endTime) {
-        // add 12 hours
-        args.endTime = parseInt(args.startTime, 10) + 3600000
-      }
-      else if (args.endTime && !args.startTime) {
-        // subtract 12 hours
-        args.startTime = parseInt(args.endTime, 10) - 3600000
+      if (opts.from) {
+        args.since = Number(opts.from) * 1000000
       }
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, opts.from).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), opts.timeframe, opts.from).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
@@ -88,7 +81,7 @@ module.exports = function kraken (conf) {
             return {
               trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
               time: trade[0],
-              size: parseFloat(trade[5]),
+              size: parseFloat(trade[6]),
               price: parseFloat(trade[4]),
               side: buySell
             }
@@ -103,14 +96,14 @@ module.exports = function kraken (conf) {
         })
       }
       else {
-        client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args).then(result => {
+        client.fetchTrades(joinProduct(opts.product_id), args).then(result => {
           var trades = result.map(function (trade) {
             return {
-              trade_id: trade.id,
-              time: trade.timestamp,
-              size: parseFloat(trade.amount),
-              price: parseFloat(trade.price),
-              side: trade.side
+              trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
+              time: trade[2],
+              size: parseFloat(trade[1]),
+              price: parseFloat(trade[0]),
+              side: trade[3]
             }
           })
           cb(null, trades)
