@@ -17,9 +17,9 @@ c.mongo.replicaSet = null
 c.mongo.authMechanism = null
 
 // default selector. only used if omitting [selector] argument from a command.
-c.selector = 'gdax.BTC-USD'
+c.selector = 'kraken.XXBT-ZUSD'
 // name of default trade strategy
-c.strategy = 'trend_ema'
+c.strategy = 'pivot'
 
 // Exchange API keys:
 
@@ -28,12 +28,6 @@ c.gdax = {}
 c.gdax.key = 'YOUR-API-KEY'
 c.gdax.b64secret = 'YOUR-BASE64-SECRET'
 c.gdax.passphrase = 'YOUR-PASSPHRASE'
-
-// to enable Poloniex trading, enter your API credentials:
-c.poloniex = {}
-c.poloniex.key = 'YOUR-API-KEY'
-c.poloniex.secret = 'YOUR-SECRET'
-// please note: poloniex does not support market orders via the API
 
 // to enable Kraken trading, enter your API credentials:
 c.kraken = {}
@@ -47,49 +41,6 @@ c.binance = {}
 c.binance.key = 'YOUR-API-KEY'
 c.binance.secret = 'YOUR-SECRET'
 
-// to enable Bittrex trading, enter your API credentials:
-c.bittrex = {}
-c.bittrex.key = 'YOUR-API-KEY'
-c.bittrex.secret = 'YOUR-SECRET'
-// make sure to give your API key access to only: "Trade Limit" and "Read Info",
-// please note that this might change in the future.
-// please note that bittrex API is limited, you cannot use backfills or sims (paper/live trading only)
-
-// to enable Bitfinex trading, enter your API credentials:
-c.bitfinex = {}
-c.bitfinex.key = 'YOUR-API-KEY'
-c.bitfinex.secret = 'YOUR-SECRET'
-// May use 'exchange' or 'margin' wallet balances
-c.bitfinex.wallet = 'exchange'
-
-// to enable Bitstamp trading, enter your API credentials:
-c.bitstamp = {}
-c.bitstamp.key = 'YOUR-API-KEY'
-c.bitstamp.secret = 'YOUR-SECRET'
-// A client ID is required on Bitstamp
-c.bitstamp.client_id = 'YOUR-CLIENT-ID'
-
-// to enable CEX.IO trading, enter your API credentials:
-c.cexio = {}
-c.cexio.username = 'YOUR-CLIENT-ID'
-c.cexio.key = 'YOUR-API-KEY'
-c.cexio.secret = 'YOUR-SECRET'
-
-// to enable QuadrigaCX tranding, enter your API credentials:
-c.quadriga = {}
-c.quadriga.key = 'YOUR-API-KEY'
-// this is the manual secret key entered by editing the API access
-// and NOT the md5 hash you see in the summary
-c.quadriga.secret = 'YOUR-SECRET'
-// replace with the client id used at login, as a string, not number
-c.quadriga.client_id = 'YOUR-CLIENT-ID'
-
-// to enable WEX.NZ trading, enter your API credentials:
-// Note: WexNZ only supports backfilling the last ~1/4 day ATM.
-c.wexnz = {}
-c.wexnz.key = 'YOUR-API-KEY'
-c.wexnz.secret = 'YOUR-SECRET'
-
 // to enable Gemini trading, enter your API credentials:
 c.gemini = {}
 c.gemini.key = 'YOUR-API-KEY'
@@ -97,15 +48,6 @@ c.gemini.secret = 'YOUR-SECRET'
 // set to false to trade on the live platform API
 c.gemini.sandbox = true
 
-// to enable hitBTC trading, enter your API credentials:
-c.hitbtc = {}
-c.hitbtc.key = 'YOUR-API-KEY'
-c.hitbtc.secret = 'YOUR-SECRET'
-
-// to enable therock trading, enter your API credentials:
-c.therock = {}
-c.therock.key = 'YOUR-API-KEY'
-c.therock.secret = 'YOUR-SECRET'
 
 // Optional stop-order triggers:
 
@@ -181,36 +123,6 @@ c.leverage_amount = 0
 // Notifiers:
 c.notifiers = {}
 
-// xmpp config
-c.notifiers.xmpp = {}
-c.notifiers.xmpp.on = false  // false xmpp disabled; true xmpp enabled (credentials should be correct)
-c.notifiers.xmpp.jid = 'trader@domain.com'
-c.notifiers.xmpp.password = 'Password'
-c.notifiers.xmpp.host = 'domain.com'
-c.notifiers.xmpp.port = 5222
-c.notifiers.xmpp.to = 'MeMyselfAndI@domain.com'
-// end xmpp configs
-
-// pushbullets configs
-c.notifiers.pushbullet = {}
-c.notifiers.pushbullet.on = false // false pushbullets disabled; true pushbullets enabled (key should be correct)
-c.notifiers.pushbullet.key = 'YOUR-API-KEY'
-c.notifiers.pushbullet.deviceID = 'YOUR-DEVICE-ID'
-// end pushbullets configs
-
-// ifttt configs
-c.notifiers.ifttt = {}
-c.notifiers.ifttt.on = false // false ifttt disabled; true ifttt enabled (key should be correct)
-c.notifiers.ifttt.makerKey = 'YOUR-API-KEY'
-c.notifiers.ifttt.eventName = 'zenbot'
-// end ifttt configs
-
-// slack config
-c.notifiers.slack = {}
-c.notifiers.slack.on = false
-c.notifiers.slack.webhook_url = ''
-// end slack config
-
 // discord configs
 c.notifiers.discord = {}
 c.notifiers.discord.on = false // false discord disabled; true discord enabled (key should be correct)
@@ -221,39 +133,5 @@ c.notifiers.discord.avatar_url = ''
 c.notifiers.discord.color = null // color as a decimal
 // end discord configs
 
-// prowl configs
-c.notifiers.prowl = {}
-c.notifiers.prowl.on = false // false prowl disabled; true prowl enabled (key should be correct)
-c.notifiers.prowl.key = 'YOUR-API-KEY'
-// end prowl configs
-
-// textbelt configs
-c.notifiers.textbelt = {}
-c.notifiers.textbelt.on = false // false textbelt disabled; true textbelt enabled (key should be correct)
-c.notifiers.textbelt.phone = '3121234567'
-c.notifiers.textbelt.key = 'textbelt'
-// end textbelt configs
-
-// pushover configs
-c.notifiers.pushover = {}
-c.notifiers.pushover.on = false // false pushover disabled; true pushover enabled (keys should be correct)
-c.notifiers.pushover.token = 'YOUR-API-TOKEN' // create application and supply the token here
-c.notifiers.pushover.user = 'YOUR-USER-KEY' // this is your own user's key (not application related)
-c.notifiers.pushover.priority = '0' // choose a priority to send zenbot messages with, see https://pushover.net/api#priority
-// end pushover configs
-
-// telegram configs
-c.notifiers.telegram = {}
-c.notifiers.telegram.on = false // false telegram disabled; true telegram enabled (key should be correct)
-c.notifiers.telegram.bot_token = 'YOUR-BOT-TOKEN'
-c.notifiers.telegram.chat_id = 'YOUR-CHAT-ID' // the id of the chat the messages should be send in
-// end telegram configs
-
 // output
 c.output  = {}
-
-// REST API
-c.output.api = {}
-c.output.api.on = false
-c.output.api.ip = '0.0.0.0' // IPv4 or IPv6 address to listen on, uses all available interfaces if omitted
-c.output.api.port = 0 // 0 = random port, set to 17365 if you use docker
