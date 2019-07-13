@@ -108,7 +108,7 @@ module.exports = function container(conf) {
       if (opts.from) {
         args.since = Number(opts.from) * 1000000
       }
-
+      console.log(args.since)
       client.api('Trades', args, function(error, data) {
         if (error && error.message.match(recoverableErrors)) {
           return retry('getTrades', func_args, error)
