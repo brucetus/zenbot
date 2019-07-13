@@ -61,8 +61,6 @@ module.exports = function kraken (conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      , trades = []
-      , maxTime = 0
       var client = publicClient()
       var args = {
         pair: joinProduct(opts.product_id),
@@ -72,11 +70,6 @@ module.exports = function kraken (conf) {
       client.fetchTrades(joinProduct(opts.product_id), args.since, function(error, data) {
         if (error) {
           return retry('getTrades', func_args, error)
-        }
-        if (error) {
-          console.error(('\nTrades error:').red)
-          console.error(error)
-          return cb(null, [])
         }
         if (data.error.length) {
           return cb(data.error.join(','))
