@@ -99,7 +99,7 @@ module.exports = function kraken (conf) {
       //   })
       // }
       //else {
-      client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args.since).then(result => {
+      client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
         var trades = result.map(function (trade) {
           if (!opts.from || (Number(opts.from) < moment.unix((trade[2]).valueOf()))) {
             return {
