@@ -68,16 +68,18 @@ module.exports = function kraken (conf) {
         interval: 60,
         since: Number(opts.from) * 1000000
       }
-      console.log(args.since)
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
       if (firstRun) {
         client.fetchOHLCV(joinProduct(opts.product_id), args.interval, args.since).then(result => {
-          console.log("OHLCV started")
+          console.log(trade[0])
+          console.log(trade[6])
+          console.log(trade[4])
           var lastVal = 0
           trades = result.map(function(trade) {
+            console.log(trade[0])
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
             lastVal = parseFloat(trade[4])
             if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
