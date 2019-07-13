@@ -53,7 +53,6 @@ module.exports = function kraken (conf) {
     historyScanUsesTime: true,
     makerFee: 0.16,
     takerFee: 0.26,
-    backfillRateLimit: 5000,
 
     getProducts: function () {
       return require('./products.json')
@@ -66,54 +65,54 @@ module.exports = function kraken (conf) {
       var client = publicClient()
       var args = {
         pair: joinProduct(opts.product_id),
-        interval: 120,
+        interval: 60,
         since: Number(opts.from) * 1000000
       }
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
       }
-      // if (firstRun) {
-      //   client.fetchOHLCV(joinProduct(opts.product_id), args).then(result => {
-      //     var lastVal = 0
-      //     trades = result.map(function(trade) {
-      //       let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
-      //       lastVal = parseFloat(trade[4])
-      //       if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
-      //       return {
-      //         trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
-      //         time: trade[0],
-      //         size: parseFloat(trade[6]),
-      //         price: parseFloat(trade[4]),
-      //         side: buySell
-      //       }
-      //     })
-      //     cb(null, trades)
-      //   }).catch(function(error) {
-      //     firstRun = false
-      //     allowGetMarketCall = false
-      //     setTimeout(()=>{allowGetMarketCall = true}, 5000)
-      //     console.error('[OHLCV] An error occurred', error)
-      //     return retry('getTrades', func_args, error)
-      //   })
-      // }
-      //else {
-      client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
-        var trades = result.map(function (trade) {
-          return {
-            trade_id: trade.id,
-            time: trade.datetime,
-            size: trade.amount,
-            price: trade.price,
-            side: trade.side
-          }
+      if (firstRun) {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.interval, args.since).then(result => {
+          var lastVal = 0
+          trades = result.map(function(trade) {
+            let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
+            lastVal = parseFloat(trade[4])
+            if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
+            return {
+              trade_id: trade[0],
+              time: trade[0],
+              size: trade[6],
+              price: trade[4],
+              side: buySell
+            }
+          })
+          cb(null, trades)
+        }).catch(function(error) {
+          firstRun = false
+          allowGetMarketCall = false
+          setTimeout(()=>{allowGetMarketCall = true}, 5000)
+          console.error('[OHLCV] An error occurred', error)
+          return retry('getTrades', func_args, error)
         })
-        cb(null, trades)
-      }).catch(function (error) {
-        console.error('An error occurred', error)
-        return retry('getTrades', func_args)
-      })
-      //}
+      }
+      else {
+        client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
+          var trades = result.map(function (trade) {
+            return {
+              trade_id: trade.id,
+              time: trade.datetime,
+              size: trade.amount,
+              price: trade.price,
+              side: trade.side
+            }
+          })
+          cb(null, trades)
+        }).catch(function (error) {
+          console.error('An error occurred', error)
+          return retry('getTrades', func_args)
+        })
+      }
     },
 
     getBalance: function (opts, cb) {
