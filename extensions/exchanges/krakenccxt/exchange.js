@@ -76,9 +76,7 @@ module.exports = function kraken (conf) {
           var lastVal = 0
           trades = result.map(function(trade) {
 
-            console.log(trade[0])
             console.log(trade[6])
-            console.log(trade[4])
 
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
             lastVal = parseFloat(trade[4])
@@ -86,7 +84,7 @@ module.exports = function kraken (conf) {
             return {
               trade_id: trade[0],
               time: trade[0],
-              size: trade[6],
+              size: parseFloat(trade[6]),
               price: trade[4],
               side: buySell
             }
