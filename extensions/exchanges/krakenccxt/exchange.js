@@ -1,7 +1,6 @@
 const ccxt = require('ccxt')
 , colors = require('colors')
 , minimist = require('minimist')
-, moment = require('moment')
 , n = require('numbro')
 , path = require('path')
 , _ = require('lodash')
@@ -103,7 +102,7 @@ module.exports = function kraken (conf) {
         var trades = result.map(function (trade) {
           return {
             trade_id: trade.id,
-            time: trade.timestamp,
+            time: trade.datetime,
             size: trade.amount,
             price: trade.price,
             side: trade.side
