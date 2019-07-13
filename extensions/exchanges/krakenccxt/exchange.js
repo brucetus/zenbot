@@ -68,7 +68,6 @@ module.exports = function kraken (conf) {
         interval: 120,
         since: Number(opts.from) * 1000000
       }
-      console.log(opts.from)
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
@@ -98,7 +97,7 @@ module.exports = function kraken (conf) {
       //   })
       // }
       //else {
-        client.fetchTrades(joinProduct(opts.product_id), Number(opts.from)).then(result => {
+        client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
           var trades = result.map(function (trade) {
             return {
               trade_id: trade[2] + trade[1] + trade[0],
