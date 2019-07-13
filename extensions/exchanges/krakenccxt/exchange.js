@@ -72,19 +72,16 @@ module.exports = function kraken (conf) {
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), 60, args.since).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
-
-            console.log(trade[6])
-
             let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
             lastVal = parseFloat(trade[4])
             if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
             return {
               trade_id: trade[0],
               time: trade[0],
-              size: parseFloat(trade[6]),
+              size: trade[6],
               price: trade[4],
               side: buySell
             }
