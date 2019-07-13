@@ -1,8 +1,9 @@
 const ccxt = require('ccxt')
-, path = require('path')
+, colors = require('colors')
 , minimist = require('minimist')
 , moment = require('moment')
-, colors = require('colors')
+, n = require('numbro')
+, path = require('path')
 , _ = require('lodash')
 
 module.exports = function kraken (conf) {
