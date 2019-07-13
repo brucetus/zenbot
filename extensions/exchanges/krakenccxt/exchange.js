@@ -60,12 +60,11 @@ module.exports = function kraken (conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      var trades = []
-      var maxTime = 0
+      , trades = []
+      , maxTime = 0
       var client = publicClient()
       var args = {
         pair: joinProduct(opts.product_id),
-        interval: 60,
         since: Number(opts.from) * 1000000
       }
       if (allowGetMarketCall != true) {
@@ -73,7 +72,7 @@ module.exports = function kraken (conf) {
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.interval, args.since).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, args.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
 
