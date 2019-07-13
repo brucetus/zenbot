@@ -61,34 +61,61 @@ module.exports = function kraken (conf) {
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
+      var trades = []
+      var maxTime = 0
       var client = publicClient()
       var args = {
         pair: joinProduct(opts.product_id),
         interval: 120,
         since: Number(opts.from) * 1000000
       }
-      client.fetchTrades(joinProduct(opts.product_id), args.since, function(error, data) {
-        if (error) {
-          return retry('getTrades', func_args, error)
-        }
-        if (data.error.length) {
-          return cb(data.error.join(','))
-        }
-        var trades = []
-        Object.keys(data.result[args.pair]).forEach(function(i) {
-          var trade = data.result[args.pair][i]
+      if (allowGetMarketCall != true) {
+        cb(null, [])
+        return null
+      }
+      // if (firstRun) {
+      //   client.fetchOHLCV(joinProduct(opts.product_id), args).then(result => {
+      //     var lastVal = 0
+      //     trades = result.map(function(trade) {
+      //       let buySell = parseFloat(trade[4]) > lastVal ? 'buy' : 'sell'
+      //       lastVal = parseFloat(trade[4])
+      //       if (Number(trade[0]) > maxTime) maxTime = Number(trade[0])
+      //       return {
+      //         trade_id: trade[0]+''+ (trade[5]+'').slice(-2) + (trade[4]+'').slice(-2),
+      //         time: trade[0],
+      //         size: parseFloat(trade[6]),
+      //         price: parseFloat(trade[4]),
+      //         side: buySell
+      //       }
+      //     })
+      //     cb(null, trades)
+      //   }).catch(function(error) {
+      //     firstRun = false
+      //     allowGetMarketCall = false
+      //     setTimeout(()=>{allowGetMarketCall = true}, 5000)
+      //     console.error('[OHLCV] An error occurred', error)
+      //     return retry('getTrades', func_args, error)
+      //   })
+      // }
+      //else {
+      client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
+        var trades = result.map(function (trade) {
           if (!opts.from || (Number(opts.from) < moment.unix((trade[2]).valueOf()))) {
-            trades.push({
-              trade_id: trade[2] + trade[1] + trade[0],
+            return {
+              trade_id: trade[2],
               time: moment.unix(trade[2]).valueOf(),
               size: parseFloat(trade[1]),
               price: parseFloat(trade[0]),
               side: trade[3] == 'b' ? 'buy' : 'sell'
-            })
+            }
           }
         })
         cb(null, trades)
+      }).catch(function (error) {
+        console.error('An error occurred', error)
+        return retry('getTrades', func_args)
       })
+      //}
     },
 
     getBalance: function (opts, cb) {
