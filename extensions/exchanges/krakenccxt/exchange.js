@@ -68,6 +68,7 @@ module.exports = function kraken (conf) {
         interval: 120,
         since: Number(opts.from) * 1000000
       }
+      console.log(opts.from)
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
