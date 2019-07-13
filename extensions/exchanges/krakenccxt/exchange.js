@@ -101,14 +101,12 @@ module.exports = function kraken (conf) {
       //else {
       client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
         var trades = result.map(function (trade) {
-          if (!opts.from || (Number(opts.from) < moment.unix((trade[2]).valueOf()))) {
-            return {
-              trade_id: trade[2],
-              time: moment.unix(trade[2]).valueOf(),
-              size: parseFloat(trade[1]),
-              price: parseFloat(trade[0]),
-              side: trade[3] == 'b' ? 'buy' : 'sell'
-            }
+          return {
+            trade_id: trade.id,
+            time: trade.timestamp,
+            size: trade.amount,
+            price: trade.price,
+            side: trade.side
           }
         })
         cb(null, trades)
