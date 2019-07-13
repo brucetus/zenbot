@@ -64,6 +64,7 @@ module.exports = function kraken (conf) {
       , maxTime = 0
       var client = publicClient()
       var args = {
+        pair: joinProduct(opts.product_id),
         interval: 120,
         since: Number(opts.from) * 1000000
       }
@@ -95,8 +96,8 @@ module.exports = function kraken (conf) {
       //     return retry('getTrades', func_args, error)
       //   })
       // }
-      else {
-        client.fetchTrades(args).then(result => {
+      //else {
+        client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
           var trades = result.map(function (trade) {
             return {
               trade_id: trade[2] + trade[1] + trade[0],
