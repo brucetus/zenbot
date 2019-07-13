@@ -72,7 +72,7 @@ module.exports = function kraken (conf) {
         return null
       }
       if (firstRun) {
-        client.fetchOHLCV(joinProduct(opts.product_id), args.timeframe, args.since).then(result => {
+        client.fetchOHLCV(joinProduct(opts.product_id), args.since).then(result => {
           var lastVal = 0
           trades = result.map(function(trade) {
 
