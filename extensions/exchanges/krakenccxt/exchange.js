@@ -68,6 +68,7 @@ module.exports = function kraken (conf) {
         interval: 60,
         since: Number(opts.from) * 1000000
       }
+      console.log(args.since)
       if (allowGetMarketCall != true) {
         cb(null, [])
         return null
@@ -97,7 +98,7 @@ module.exports = function kraken (conf) {
         })
       }
       else {
-        client.fetchTrades(joinProduct(opts.product_id), args.since).then(result => {
+        client.fetchTrades(joinProduct(opts.product_id), undefined, undefined, args.since).then(result => {
           var trades = result.map(function (trade) {
             return {
               trade_id: trade.id,
@@ -139,9 +140,9 @@ module.exports = function kraken (conf) {
         })
       } else if (so.leverage > 1) {
         var balance = {
-          asset: '100',
+          asset: '100000',
           asset_hold: '0',
-          currency: '100',
+          currency: '100000',
           currency_hold: '0'
         }
         cb(null, balance)
