@@ -69,7 +69,7 @@ module.exports = function kraken (conf) {
         interval: 120,
         since: Number(opts.from) * 1000000
       }
-      client.fetchTrades(args, function(error, data) {
+      client.fetchTrades(joinProduct(opts.product_id), args.since, function(error, data) {
         if (error) {
           return retry('getTrades', func_args, error)
         }
