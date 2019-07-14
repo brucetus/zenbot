@@ -2,7 +2,7 @@ var z = require('zero-fill')
 , n = require('numbro')
 , ema = require('../../../lib/ema')
 , cmf = require('../../../lib/cmf')
-, vo_ema = require('../../../lib/vo')
+, vo_ema = require('../../../lib/vo_ema')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
