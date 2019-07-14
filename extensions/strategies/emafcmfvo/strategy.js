@@ -2,7 +2,7 @@ var z = require('zero-fill')
 , n = require('numbro')
 , ema = require('../../../lib/ema')
 , cmf = require('../../../lib/cmf')
-, vo = require('../../../lib/vo')
+, vo_ema = require('../../../lib/vo')
 , dupOrderWorkAround = require('../../../lib/duporderworkaround')
 
 module.exports = {
@@ -26,7 +26,7 @@ module.exports = {
       s.period.ema = round(s.period.ema, 4)
       cmf(s, 'cmf', s.options.cmf)
       s.period.cmf = round(s.period.cmf, 4)
-      vo(s, 'vo', s.options.svo, s.options.lvo)
+      vo_ema(s, 'vo', s.options.svo, s.options.lvo)
       s.period.vo = round(s.period.vo, 4)
     }
   },
