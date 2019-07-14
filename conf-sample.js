@@ -103,8 +103,6 @@ c.currency_capital = 1000
 c.asset_capital = 0
 // for sim, reverse time at the end of the graph, normalizing buy/hold to 0
 c.symmetrical = false
-// number of periods to calculate RSI at
-c.rsi_periods = 14
 // period to record balances for stats
 c.balance_snapshot_period = '15m'
 // avg. amount of slippage to apply to sim trades
