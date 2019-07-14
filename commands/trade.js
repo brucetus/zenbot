@@ -43,7 +43,6 @@ module.exports = function (program, conf) {
     .option('--max_sell_loss_pct <pct>', 'avoid selling at a loss pct under this float', conf.max_sell_loss_pct)
     .option('--max_buy_loss_pct <pct>', 'avoid buying at a loss pct over this float', conf.max_buy_loss_pct)
     .option('--max_slippage_pct <pct>', 'avoid selling at a slippage pct above this float', conf.max_slippage_pct)
-    .option('--rsi_periods <periods>', 'number of periods to calculate RSI at', Number, conf.rsi_periods)
     .option('--poll_trades <ms>', 'poll new trades at this interval in ms', Number, conf.poll_trades)
     .option('--currency_increment <amount>', 'Currency increment, if different than the asset increment', String, null)
     .option('--keep_lookback_periods <amount>', 'Keep this many lookback periods max. ', Number, conf.keep_lookback_periods)
@@ -87,7 +86,7 @@ module.exports = function (program, conf) {
         so.deposit = so.buy_max_amt
       }
 
-      so.selector = objectifySelector(selector || conf.selector)      
+      so.selector = objectifySelector(selector || conf.selector)
       var engine = engineFactory(s, conf)
       var collectionServiceInstance = collectionService(conf)
 
@@ -732,4 +731,3 @@ module.exports = function (program, conf) {
       }
     })
 }
-
