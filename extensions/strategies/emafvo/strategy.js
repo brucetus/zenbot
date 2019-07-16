@@ -21,9 +21,9 @@ module.exports = {
   calculate: function (s) {
     if (s.lookback[s.options.ema]) {
       ema(s, 'ema', s.options.ema)
-      s.period.ema = round(s.period.ema, 6)
+      s.period.ema = round(s.period.ema, 4)
       vo_sma(s, 'vo', s.options.svo, s.options.lvo)
-      s.period.vo = round(s.period.vo, 6)
+      s.period.vo = round(s.period.vo, 4)
     }
   },
 
@@ -45,7 +45,7 @@ module.exports = {
           s.signal = !s.acted_on_trend ? 'buy' : null
         }
       }
-      if (s.options.sell !== false && s.period.vo > 0) {
+      if (s.options.sell !== false) {
         if (s.period.close < s.downfractal && s.period.close < s.period.ema && s.period.vo > 0) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
