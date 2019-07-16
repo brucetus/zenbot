@@ -12,7 +12,7 @@ module.exports = {
     this.option('min_periods', 'min_periods', Number, 100)
     this.option('buy', 'buy', Boolean, false)
     this.option('sell', 'sell', Boolean, false)
-    this.option('close', 'close', Boolean, false)
+    this.option('close', 'close', Boolean, true)
     this.option('ema', 'ema', Number, 100)
   },
 
