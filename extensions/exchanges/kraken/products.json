@@ -108,7 +108,7 @@
     "asset": "BCH",
     "currency": "ZUSD",
     "min_size": "0.002",
-    "increment": "0.01",
+    "increment": "0.001",
     "label": "BCH/USD"
   },
   {
