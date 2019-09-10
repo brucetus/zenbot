@@ -29,7 +29,7 @@ module.exports = {
     }
         if (s.upfractal || s.downfractal) {
       if (s.options.buy !== false) {
-        if (s.period.high / s.upfractal > s.options.up) {
+        if (s.period.close / s.upfractal > s.options.up) {
           if (s.trend !== 'up') {
             s.acted_on_trend = false
           }
@@ -39,7 +39,7 @@ module.exports = {
         }
       }
       if (s.options.sell !== false) {
-        if (s.period.low / s.downfractal < s.options.down) {
+        if (s.period.close / s.downfractal < s.options.down) {
           if (s.trend !== 'down') {
             s.acted_on_trend = false
           }
